@@ -1,0 +1,79 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    My Properties
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>My Properties</h1>
+
+        <p>
+            View and manage the properties registered to your account.
+        </p>
+
+        <a
+            href="{% url 'properties:property_create' %}"
+            class="button"
+        >
+            Add Property
+        </a>
+    </div>
+
+    {% if properties %}
+        <div class="property-grid">
+            {% for property in properties %}
+                <div class="card">
+                    <h2>{{ property.name }}</h2>
+
+                    <p>
+                        <strong>Type:</strong>
+                        {{ property.get_property_type_display }}
+                    </p>
+
+                    <p>
+                        <strong>Address:</strong>
+                        {{ property.address }}
+                    </p>
+
+                    <p>
+                        <strong>Postcode:</strong>
+                        {{ property.postcode|default:"Not provided" }}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+
+                        {% if property.is_active %}
+                            <span class="status-active">Active</span>
+                        {% else %}
+                            <span class="status-inactive">Inactive</span>
+                        {% endif %}
+                    </p>
+
+                    <a
+                        href="{% url 'properties:property_detail' property.public_id %}"
+                        class="button"
+                    >
+                        View Property
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card empty-state">
+            <h2>No properties found</h2>
+
+            <p>
+                You have not added a property yet.
+            </p>
+
+            <a
+                href="{% url 'properties:property_create' %}"
+                class="button"
+            >
+                Add Your First Property
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}

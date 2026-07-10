@@ -1,0 +1,102 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {{ property.name }}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>{{ property.name }}</h1>
+
+        <p>
+            <strong>Property type:</strong>
+            {{ property.get_property_type_display }}
+        </p>
+
+        <p>
+            <strong>Address:</strong>
+            {{ property.address }}
+        </p>
+
+        <p>
+            <strong>Postcode:</strong>
+            {{ property.postcode|default:"Not provided" }}
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+
+            {% if property.is_active %}
+                <span class="status-active">Active</span>
+            {% else %}
+                <span class="status-inactive">Inactive</span>
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Public identifier:</strong>
+            {{ property.public_id }}
+        </p>
+
+        <p>
+            <strong>Created:</strong>
+            {{ property.created_at|date:"d F Y, H:i" }}
+        </p>
+
+        <p>
+            <strong>Last updated:</strong>
+            {{ property.updated_at|date:"d F Y, H:i" }}
+        </p>
+
+        <div class="actions">
+            <a
+                href="{% url 'properties:property_update' property.public_id %}"
+                class="button"
+            >
+                Edit Property
+            </a>
+
+            <a
+                href="{% url 'properties:property_delete' property.public_id %}"
+                class="button button-danger"
+            >
+                Delete Property
+            </a>
+
+            <a
+                href="{% url 'properties:property_list' %}"
+                class="button button-secondary"
+            >
+                Back to Properties
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Rooms</h2>
+
+        {% if property.rooms.all %}
+            <ul>
+                {% for room in property.rooms.all %}
+                    <li>
+                        {{ room.name }} —
+                        {{ room.get_room_type_display }}
+                    </li>
+                {% empty %}
+                    <li>No rooms have been added.</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No rooms have been added.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Master Property QR Code</h2>
+
+        <p>
+            QR-code generation will be implemented during the Hybrid QR
+            System sprint.
+        </p>
+    </div>
+{% endblock %}

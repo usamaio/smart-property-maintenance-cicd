@@ -1,0 +1,51 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {% if property %}
+        Edit Property
+    {% else %}
+        Add Property
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        {% if property %}
+            <h1>Edit Property</h1>
+        {% else %}
+            <h1>Add Property</h1>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="actions">
+                <button type="submit" class="button">
+                    {% if property %}
+                        Save Changes
+                    {% else %}
+                        Create Property
+                    {% endif %}
+                </button>
+
+                {% if property %}
+                    <a
+                        href="{% url 'properties:property_detail' property.public_id %}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                {% else %}
+                    <a
+                        href="{% url 'properties:property_list' %}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+{% endblock %}

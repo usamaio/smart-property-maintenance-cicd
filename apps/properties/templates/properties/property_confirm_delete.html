@@ -1,0 +1,38 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Delete {{ property.name }}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Delete Property</h1>
+
+        <p>
+            Are you sure you want to delete
+            <strong>{{ property.name }}</strong>?
+        </p>
+
+        <p>
+            Deleting this property will also delete its related rooms and,
+            later, its associated appliances and maintenance records.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="actions">
+                <button type="submit" class="button button-danger">
+                    Confirm Delete
+                </button>
+
+                <a
+                    href="{% url 'properties:property_detail' property.public_id %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
