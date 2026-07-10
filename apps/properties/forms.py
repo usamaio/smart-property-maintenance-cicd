@@ -1,4 +1,5 @@
 from django import forms
+
 from .models import Property, Room
 
 
@@ -21,3 +22,7 @@ class RoomForm(forms.ModelForm):
             'name',
             'room_type',
         ]
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        return name.strip()

@@ -34,18 +34,8 @@
         </p>
 
         <p>
-            <strong>Public identifier:</strong>
+            <strong>Property reference:</strong>
             {{ property.public_id }}
-        </p>
-
-        <p>
-            <strong>Created:</strong>
-            {{ property.created_at|date:"d F Y, H:i" }}
-        </p>
-
-        <p>
-            <strong>Last updated:</strong>
-            {{ property.updated_at|date:"d F Y, H:i" }}
         </p>
 
         <div class="actions">
@@ -75,19 +65,46 @@
     <div class="card">
         <h2>Rooms</h2>
 
-        {% if property.rooms.all %}
-            <ul>
-                {% for room in property.rooms.all %}
-                    <li>
-                        {{ room.name }} —
-                        {{ room.get_room_type_display }}
-                    </li>
-                {% empty %}
-                    <li>No rooms have been added.</li>
+        <a
+            href="{% url 'properties:room_create' property.public_id %}"
+            class="button"
+        >
+            Add Room
+        </a>
+
+        {% if rooms %}
+            <div style="margin-top: 20px;">
+                {% for room in rooms %}
+                    <div class="card">
+                        <h3>{{ room.name }}</h3>
+
+                        <p>
+                            <strong>Room type:</strong>
+                            {{ room.get_room_type_display }}
+                        </p>
+
+                        <div class="actions">
+                            <a
+                                href="{% url 'properties:room_update' room.public_id %}"
+                                class="button"
+                            >
+                                Edit Room
+                            </a>
+
+                            <a
+                                href="{% url 'properties:room_delete' room.public_id %}"
+                                class="button button-danger"
+                            >
+                                Delete Room
+                            </a>
+                        </div>
+                    </div>
                 {% endfor %}
-            </ul>
+            </div>
         {% else %}
-            <p>No rooms have been added.</p>
+            <p style="margin-top: 20px;">
+                No rooms have been added to this property.
+            </p>
         {% endif %}
     </div>
 

@@ -1,0 +1,40 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Delete {{ room.name }}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Delete Room</h1>
+
+        <p>
+            Are you sure you want to delete
+            <strong>{{ room.name }}</strong>
+            from
+            <strong>{{ property.name }}</strong>?
+        </p>
+
+        <p>
+            Appliances associated with this room may also be affected
+            when appliance management is implemented.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="actions">
+                <button type="submit" class="button button-danger">
+                    Confirm Delete
+                </button>
+
+                <a
+                    href="{% url 'properties:property_detail' property.public_id %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
