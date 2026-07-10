@@ -1,3 +1,125 @@
+import uuid
+
 from django.db import models
 
-# Create your models here.
+from apps.properties.models import Property, Room
+
+
+class Appliance(models.Model):
+    APPLIANCE_TYPES = (
+        ('boiler', 'Boiler'),
+        ('washing_machine', 'Washing Machine'),
+        ('dishwasher', 'Dishwasher'),
+        ('refrigerator', 'Refrigerator'),
+        ('freezer', 'Freezer'),
+        ('oven', 'Oven'),
+        ('microwave', 'Microwave'),
+        ('heating_system', 'Heating System'),
+        ('air_conditioner', 'Air Conditioner'),
+        ('smoke_alarm', 'Smoke Alarm'),
+        ('other', 'Other'),
+    )
+
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('under_maintenance', 'Under Maintenance'),
+        ('out_of_service', 'Out of Service'),
+        ('retired', 'Retired'),
+    )
+
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False
+    )
+
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name='appliances'
+    )
+
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.SET_NULL,
+        related_name='appliances',
+        blank=True,
+        null=True
+    )
+
+    name = models.CharField(max_length=150)
+
+    appliance_type = models.CharField(
+        max_length=30,
+        choices=APPLIANCE_TYPES,
+        default='other'
+    )
+
+    brand = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    model_number = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    serial_number = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    installation_date = models.DateField(
+        blank=True,
+        null=True
+    )
+
+    purchase_date = models.DateField(
+        blank=True,
+        null=True
+    )
+
+    warranty_expiry_date = models.DateField(
+        blank=True,
+        null=True
+    )
+
+    status = models.CharField(
+        max_length=30,
+        choices=STATUS_CHOICES,
+        default='active'
+    )
+
+    has_individual_qr = models.BooleanField(
+        default=False,
+        help_text=(
+            'Enable this for high-value or frequently serviced appliances.'
+        )
+    )
+
+    appliance_qr_code = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    notes = models.TextField(
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Appliance'
+        verbose_name_plural = 'Appliances'
+
+    def __str__(self):
+        return f'{self.name} - {self.property.name}'
