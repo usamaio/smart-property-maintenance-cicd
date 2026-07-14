@@ -1,0 +1,40 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Delete {{ appliance.name }}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Delete Appliance</h1>
+
+        <p>
+            Are you sure you want to delete
+            <strong>{{ appliance.name }}</strong>
+            from
+            <strong>{{ property.name }}</strong>?
+        </p>
+
+        <p>
+            Related warranty and maintenance records may also be affected
+            when those modules are implemented.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="actions">
+                <button type="submit" class="button button-danger">
+                    Confirm Delete
+                </button>
+
+                <a
+                    href="{% url 'appliances:appliance_detail' appliance.public_id %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -9,4 +9,9 @@ urlpatterns = [
         'properties/',
         include('apps.properties.urls', namespace='properties')
     ),
+
+    path(
+        'appliances/',
+        include('apps.appliances.urls', namespace='appliances')
+    ),
 ]

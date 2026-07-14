@@ -109,11 +109,77 @@
     </div>
 
     <div class="card">
+        <h2>Appliances</h2>
+
+        <a
+            href="{% url 'appliances:appliance_create' property.public_id %}"
+            class="button"
+        >
+            Add Appliance
+        </a>
+
+        {% if property.appliances.all %}
+            <div style="margin-top: 20px;">
+                {% for appliance in property.appliances.all %}
+                    <div class="card">
+                        <h3>{{ appliance.name }}</h3>
+
+                        <p>
+                            <strong>Type:</strong>
+                            {{ appliance.get_appliance_type_display }}
+                        </p>
+
+                        <p>
+                            <strong>Room:</strong>
+                            {% if appliance.room %}
+                                {{ appliance.room.name }}
+                            {% else %}
+                                Not assigned
+                            {% endif %}
+                        </p>
+
+                        <p>
+                            <strong>Status:</strong>
+                            {{ appliance.get_status_display }}
+                        </p>
+
+                        <div class="actions">
+                            <a
+                                href="{% url 'appliances:appliance_detail' appliance.public_id %}"
+                                class="button"
+                            >
+                                View Appliance
+                            </a>
+
+                            <a
+                                href="{% url 'appliances:appliance_update' appliance.public_id %}"
+                                class="button button-secondary"
+                            >
+                                Edit Appliance
+                            </a>
+
+                            <a
+                                href="{% url 'appliances:appliance_delete' appliance.public_id %}"
+                                class="button button-danger"
+                            >
+                                Delete Appliance
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="margin-top: 20px;">
+                No appliances have been added to this property.
+            </p>
+        {% endif %}
+    </div>
+
+    <div class="card">
         <h2>Master Property QR Code</h2>
 
         <p>
-            QR-code generation will be implemented during the Hybrid QR
-            System sprint.
+            QR-code generation will be implemented during Sprint 8.
         </p>
     </div>
 {% endblock %}

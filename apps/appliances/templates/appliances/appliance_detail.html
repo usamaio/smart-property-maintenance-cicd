@@ -1,0 +1,116 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {{ appliance.name }}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>{{ appliance.name }}</h1>
+
+        <p>
+            <strong>Property:</strong>
+            {{ property.name }}
+        </p>
+
+        <p>
+            <strong>Room:</strong>
+            {% if appliance.room %}
+                {{ appliance.room.name }}
+            {% else %}
+                Not assigned
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Type:</strong>
+            {{ appliance.get_appliance_type_display }}
+        </p>
+
+        <p>
+            <strong>Brand:</strong>
+            {{ appliance.brand|default:"Not provided" }}
+        </p>
+
+        <p>
+            <strong>Model number:</strong>
+            {{ appliance.model_number|default:"Not provided" }}
+        </p>
+
+        <p>
+            <strong>Serial number:</strong>
+            {{ appliance.serial_number|default:"Not provided" }}
+        </p>
+
+        <p>
+            <strong>Purchase date:</strong>
+            {{ appliance.purchase_date|date:"d F Y"|default:"Not provided" }}
+        </p>
+
+        <p>
+            <strong>Installation date:</strong>
+            {{ appliance.installation_date|date:"d F Y"|default:"Not provided" }}
+        </p>
+
+        <p>
+            <strong>Warranty expiry:</strong>
+            {{ appliance.warranty_expiry_date|date:"d F Y"|default:"Not provided" }}
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+            {{ appliance.get_status_display }}
+        </p>
+
+        <p>
+            <strong>Individual QR enabled:</strong>
+            {% if appliance.has_individual_qr %}
+                Yes
+            {% else %}
+                No
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Notes:</strong>
+            {{ appliance.notes|default:"No notes added." }}
+        </p>
+
+        <div class="actions">
+            <a
+                href="{% url 'appliances:appliance_update' appliance.public_id %}"
+                class="button"
+            >
+                Edit Appliance
+            </a>
+
+            <a
+                href="{% url 'appliances:appliance_delete' appliance.public_id %}"
+                class="button button-danger"
+            >
+                Delete Appliance
+            </a>
+
+            <a
+                href="{% url 'properties:property_detail' property.public_id %}"
+                class="button button-secondary"
+            >
+                Back to Property
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Appliance QR Code</h2>
+
+        {% if appliance.has_individual_qr %}
+            <p>
+                QR-code generation will be completed during Sprint 8.
+            </p>
+        {% else %}
+            <p>
+                This appliance uses the master property QR workflow.
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}
