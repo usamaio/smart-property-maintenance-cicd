@@ -27,4 +27,20 @@ urlpatterns = [
         views.appliance_delete,
         name='appliance_delete'
     ),
+
+    path(
+        '<uuid:appliance_public_id>/warranties/add/',
+        views.warranty_create,
+        name='warranty_create'
+    ),
+    path(
+        'warranties/<uuid:public_id>/edit/',
+        views.warranty_update,
+        name='warranty_update'
+    ),
+    path(
+        'warranties/<uuid:public_id>/delete/',
+        views.warranty_delete,
+        name='warranty_delete'
+    ),
 ]

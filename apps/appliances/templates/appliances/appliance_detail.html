@@ -44,17 +44,20 @@
 
         <p>
             <strong>Purchase date:</strong>
-            {{ appliance.purchase_date|date:"d F Y"|default:"Not provided" }}
+            {% if appliance.purchase_date %}
+                {{ appliance.purchase_date|date:"d F Y" }}
+            {% else %}
+                Not provided
+            {% endif %}
         </p>
 
         <p>
             <strong>Installation date:</strong>
-            {{ appliance.installation_date|date:"d F Y"|default:"Not provided" }}
-        </p>
-
-        <p>
-            <strong>Warranty expiry:</strong>
-            {{ appliance.warranty_expiry_date|date:"d F Y"|default:"Not provided" }}
+            {% if appliance.installation_date %}
+                {{ appliance.installation_date|date:"d F Y" }}
+            {% else %}
+                Not provided
+            {% endif %}
         </p>
 
         <p>
@@ -98,6 +101,67 @@
                 Back to Property
             </a>
         </div>
+    </div>
+
+    <div class="card">
+        <h2>Warranties</h2>
+
+        <a
+            href="{% url 'appliances:warranty_create' appliance.public_id %}"
+            class="button"
+        >
+            Add Warranty
+        </a>
+
+        {% if warranties %}
+            <div style="margin-top: 20px;">
+                {% for warranty in warranties %}
+                    <div class="card">
+                        <h3>{{ warranty.provider }}</h3>
+
+                        <p>
+                            <strong>Policy number:</strong>
+                            {{ warranty.policy_number|default:"Not provided" }}
+                        </p>
+
+                        <p>
+                            <strong>Start date:</strong>
+                            {{ warranty.start_date|date:"d F Y" }}
+                        </p>
+
+                        <p>
+                            <strong>Expiry date:</strong>
+                            {{ warranty.expiry_date|date:"d F Y" }}
+                        </p>
+
+                        <p>
+                            <strong>Notes:</strong>
+                            {{ warranty.notes|default:"No notes added." }}
+                        </p>
+
+                        <div class="actions">
+                            <a
+                                href="{% url 'appliances:warranty_update' warranty.public_id %}"
+                                class="button"
+                            >
+                                Edit Warranty
+                            </a>
+
+                            <a
+                                href="{% url 'appliances:warranty_delete' warranty.public_id %}"
+                                class="button button-danger"
+                            >
+                                Delete Warranty
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="margin-top: 20px;">
+                No warranties have been added for this appliance.
+            </p>
+        {% endif %}
     </div>
 
     <div class="card">

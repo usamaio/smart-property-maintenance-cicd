@@ -1,0 +1,50 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {% if warranty %}
+        Edit Warranty
+    {% else %}
+        Add Warranty
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        {% if warranty %}
+            <h1>Edit Warranty</h1>
+        {% else %}
+            <h1>Add Warranty</h1>
+        {% endif %}
+
+        <p>
+            Appliance: <strong>{{ appliance.name }}</strong>
+        </p>
+
+        <p>
+            Property: <strong>{{ property.name }}</strong>
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="actions">
+                <button type="submit" class="button">
+                    {% if warranty %}
+                        Save Changes
+                    {% else %}
+                        Add Warranty
+                    {% endif %}
+                </button>
+
+                <a
+                    href="{% url 'appliances:appliance_detail' appliance.public_id %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

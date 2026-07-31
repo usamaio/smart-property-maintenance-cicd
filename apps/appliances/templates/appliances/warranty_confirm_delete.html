@@ -1,0 +1,42 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Delete Warranty
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Delete Warranty</h1>
+
+        <p>
+            Are you sure you want to delete the warranty provided by
+            <strong>{{ warranty.provider }}</strong>
+            for
+            <strong>{{ appliance.name }}</strong>?
+        </p>
+
+        {% if warranty.policy_number %}
+            <p>
+                <strong>Policy number:</strong>
+                {{ warranty.policy_number }}
+            </p>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="actions">
+                <button type="submit" class="button button-danger">
+                    Confirm Delete
+                </button>
+
+                <a
+                    href="{% url 'appliances:appliance_detail' appliance.public_id %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

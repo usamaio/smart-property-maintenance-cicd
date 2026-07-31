@@ -2,7 +2,7 @@ from django import forms
 
 from apps.properties.models import Room
 
-from .models import Appliance
+from .models import Appliance, Warranty
 
 
 class ApplianceForm(forms.ModelForm):
@@ -102,3 +102,58 @@ class ApplianceForm(forms.ModelForm):
             )
 
         return cleaned_data
+
+
+class WarrantyForm(forms.ModelForm):
+    class Meta:
+        model = Warranty
+
+        fields = [
+            'provider',
+            'policy_number',
+            'start_date',
+            'expiry_date',
+            'notes',
+        ]
+
+        widgets = {
+            'start_date': forms.DateInput(
+                attrs={'type': 'date'}
+            ),
+            'expiry_date': forms.DateInput(
+                attrs={'type': 'date'}
+            ),
+            'notes': forms.Textarea(
+                attrs={
+                    'rows': 4,
+                    'placeholder': 'Add any relevant warranty notes.',
+                }
+            ),
+        }
+
+    def clean_provider(self):
+        provider = self.cleaned_data['provider']
+        return provider.strip()
+
+    def clean_policy_number(self):
+        policy_number = self.cleaned_data.get('policy_number', '')
+        return policy_number.strip()
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        start_date = cleaned_data.get('start_date')
+        expiry_date = cleaned_data.get('expiry_date')
+
+        if (
+            start_date
+            and expiry_date
+            and expiry_date < start_date
+        ):
+            self.add_error(
+                'expiry_date',
+                'Expiry date cannot be earlier than the start date.'
+            )
+
+        return cleaned_data
+    
