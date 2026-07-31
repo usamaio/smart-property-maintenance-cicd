@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.properties.models import Property
 
-from .forms import ApplianceForm
-from .models import Appliance
+from .forms import ApplianceForm, WarrantyForm
+from .models import Appliance, Warranty
 
 
 @login_required
@@ -37,7 +37,9 @@ def appliance_create(request, property_public_id):
                 public_id=appliance.public_id,
             )
     else:
-        form = ApplianceForm(property_obj=property_obj)
+        form = ApplianceForm(
+            property_obj=property_obj,
+        )
 
     context = {
         'form': form,
@@ -59,9 +61,12 @@ def appliance_detail(request, public_id):
         property__owner=request.user,
     )
 
+    warranties = appliance.warranties.all()
+
     context = {
         'appliance': appliance,
         'property': appliance.property,
+        'warranties': warranties,
     }
 
     return render(
@@ -148,5 +153,127 @@ def appliance_delete(request, public_id):
     return render(
         request,
         'appliances/appliance_confirm_delete.html',
+        context,
+    )
+
+
+@login_required
+def warranty_create(request, appliance_public_id):
+    appliance = get_object_or_404(
+        Appliance,
+        public_id=appliance_public_id,
+        property__owner=request.user,
+    )
+
+    if request.method == 'POST':
+        form = WarrantyForm(request.POST)
+
+        if form.is_valid():
+            warranty = form.save(commit=False)
+            warranty.appliance = appliance
+            warranty.save()
+
+            messages.success(
+                request,
+                'Warranty added successfully.',
+            )
+
+            return redirect(
+                'appliances:appliance_detail',
+                public_id=appliance.public_id,
+            )
+    else:
+        form = WarrantyForm()
+
+    context = {
+        'form': form,
+        'appliance': appliance,
+        'property': appliance.property,
+    }
+
+    return render(
+        request,
+        'appliances/warranty_form.html',
+        context,
+    )
+
+
+@login_required
+def warranty_update(request, public_id):
+    warranty = get_object_or_404(
+        Warranty,
+        public_id=public_id,
+        appliance__property__owner=request.user,
+    )
+
+    if request.method == 'POST':
+        form = WarrantyForm(
+            request.POST,
+            instance=warranty,
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                'Warranty updated successfully.',
+            )
+
+            return redirect(
+                'appliances:appliance_detail',
+                public_id=warranty.appliance.public_id,
+            )
+    else:
+        form = WarrantyForm(
+            instance=warranty,
+        )
+
+    context = {
+        'form': form,
+        'warranty': warranty,
+        'appliance': warranty.appliance,
+        'property': warranty.appliance.property,
+    }
+
+    return render(
+        request,
+        'appliances/warranty_form.html',
+        context,
+    )
+
+
+@login_required
+def warranty_delete(request, public_id):
+    warranty = get_object_or_404(
+        Warranty,
+        public_id=public_id,
+        appliance__property__owner=request.user,
+    )
+
+    appliance_public_id = warranty.appliance.public_id
+
+    if request.method == 'POST':
+        warranty.delete()
+
+        messages.success(
+            request,
+            'Warranty deleted successfully.',
+        )
+
+        return redirect(
+            'appliances:appliance_detail',
+            public_id=appliance_public_id,
+        )
+
+    context = {
+        'warranty': warranty,
+        'appliance': warranty.appliance,
+        'property': warranty.appliance.property,
+    }
+
+    return render(
+        request,
+        'appliances/warranty_confirm_delete.html',
         context,
     )

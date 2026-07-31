@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Appliance
+from .models import Appliance, Warranty
 
 
 @admin.register(Appliance)
@@ -63,7 +63,7 @@ class ApplianceAdmin(admin.ModelAdmin):
             },
         ),
         (
-            'Dates and Warranty',
+            'Dates',
             {
                 'fields': (
                     'purchase_date',
@@ -78,6 +78,65 @@ class ApplianceAdmin(admin.ModelAdmin):
                 'fields': (
                     'has_individual_qr',
                     'appliance_qr_code',
+                )
+            },
+        ),
+        (
+            'System Information',
+            {
+                'fields': (
+                    'public_id',
+                    'created_at',
+                    'updated_at',
+                ),
+                'classes': ('collapse',),
+            },
+        ),
+    )
+
+
+@admin.register(Warranty)
+class WarrantyAdmin(admin.ModelAdmin):
+    list_display = (
+        'provider',
+        'appliance',
+        'policy_number',
+        'start_date',
+        'expiry_date',
+        'created_at',
+    )
+
+    search_fields = (
+        'provider',
+        'policy_number',
+        'appliance__name',
+        'appliance__property__name',
+        'appliance__property__postcode',
+    )
+
+    list_filter = (
+        'start_date',
+        'expiry_date',
+        'created_at',
+    )
+
+    readonly_fields = (
+        'public_id',
+        'created_at',
+        'updated_at',
+    )
+
+    fieldsets = (
+        (
+            'Warranty Information',
+            {
+                'fields': (
+                    'appliance',
+                    'provider',
+                    'policy_number',
+                    'start_date',
+                    'expiry_date',
+                    'notes',
                 )
             },
         ),

@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.utils import timezone
 
 from apps.properties.models import Property, Room
 
@@ -80,6 +81,8 @@ class Appliance(models.Model):
         null=True
     )
 
+    # Temporary compatibility field.
+    # It will be removed after Warranty CRUD is complete.
     warranty_expiry_date = models.DateField(
         blank=True,
         null=True
@@ -123,3 +126,54 @@ class Appliance(models.Model):
 
     def __str__(self):
         return f'{self.name} - {self.property.name}'
+
+
+class Warranty(models.Model):
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False
+    )
+
+    appliance = models.ForeignKey(
+        Appliance,
+        on_delete=models.CASCADE,
+        related_name='warranties'
+    )
+
+    provider = models.CharField(
+        max_length=150
+    )
+
+    policy_number = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    start_date = models.DateField()
+
+    expiry_date = models.DateField()
+
+    notes = models.TextField(
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+        ordering = ['-expiry_date']
+        verbose_name = 'Warranty'
+        verbose_name_plural = 'Warranties'
+
+    def __str__(self):
+        return f'{self.provider} - {self.appliance.name}'
+
+    @property
+    def is_active(self):
+        return self.expiry_date >= timezone.localdate()
