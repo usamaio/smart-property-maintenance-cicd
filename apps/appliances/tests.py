@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -53,6 +54,24 @@ class WarrantyModelTests(TestCase):
 
         self.assertFalse(warranty.is_active)
 
+    def test_appliance_cannot_have_more_than_one_warranty(self):
+        today = timezone.localdate()
+
+        Warranty.objects.create(
+            appliance=self.appliance,
+            provider='First Provider',
+            start_date=today,
+            expiry_date=today + timedelta(days=365),
+        )
+
+        with self.assertRaises(IntegrityError):
+            Warranty.objects.create(
+                appliance=self.appliance,
+                provider='Second Provider',
+                start_date=today,
+                expiry_date=today + timedelta(days=730),
+            )
+
 
 class WarrantyViewTests(TestCase):
     def setUp(self):
@@ -104,3 +123,54 @@ class WarrantyViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+
+    def test_existing_warranty_hides_add_warranty_button(self):
+        today = timezone.localdate()
+
+        Warranty.objects.create(
+            appliance=self.appliance,
+            provider='Test Provider',
+            start_date=today,
+            expiry_date=today + timedelta(days=365),
+        )
+
+        response = self.client.get(
+            reverse(
+                'appliances:appliance_detail',
+                kwargs={
+                    'public_id': self.appliance.public_id,
+                },
+            )
+        )
+
+        self.assertContains(response, 'Edit Warranty')
+        self.assertNotContains(response, 'Add Warranty')
+
+    def test_create_page_redirects_to_edit_when_warranty_exists(self):
+        today = timezone.localdate()
+
+        warranty = Warranty.objects.create(
+            appliance=self.appliance,
+            provider='Test Provider',
+            start_date=today,
+            expiry_date=today + timedelta(days=365),
+        )
+
+        response = self.client.get(
+            reverse(
+                'appliances:warranty_create',
+                kwargs={
+                    'appliance_public_id': self.appliance.public_id,
+                },
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse(
+                'appliances:warranty_update',
+                kwargs={
+                    'public_id': warranty.public_id,
+                },
+            ),
+        )

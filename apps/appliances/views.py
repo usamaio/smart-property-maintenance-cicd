@@ -61,12 +61,16 @@ def appliance_detail(request, public_id):
         property__owner=request.user,
     )
 
-    warranties = appliance.warranties.all()
+    warranty = getattr(
+        appliance,
+        'warranty',
+        None,
+    )
 
     context = {
         'appliance': appliance,
         'property': appliance.property,
-        'warranties': warranties,
+        'warranty': warranty,
     }
 
     return render(
@@ -164,6 +168,24 @@ def warranty_create(request, appliance_public_id):
         public_id=appliance_public_id,
         property__owner=request.user,
     )
+
+    existing_warranty = getattr(
+        appliance,
+        'warranty',
+        None,
+    )
+
+    if existing_warranty:
+        messages.info(
+            request,
+            'This appliance already has a warranty. '
+            'You can update the existing warranty instead.',
+        )
+
+        return redirect(
+            'appliances:warranty_update',
+            public_id=existing_warranty.public_id,
+        )
 
     if request.method == 'POST':
         form = WarrantyForm(request.POST)

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>
         {% block title %}Smart Property Maintenance{% endblock %}
@@ -32,15 +35,39 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
         nav a {
             color: white;
             text-decoration: none;
-            margin-left: 16px;
         }
 
         nav a:hover {
+            text-decoration: underline;
+        }
+
+        .logout-form {
+            margin: 0;
+        }
+
+        .logout-button {
+            border: none;
+            padding: 0;
+            background: none;
+            color: white;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
             text-decoration: underline;
         }
 
@@ -113,7 +140,10 @@
 
         .property-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(270px, 1fr)
+            );
             gap: 20px;
         }
 
@@ -157,6 +187,13 @@
             padding: 24px;
             color: #6b7280;
         }
+
+        @media (max-width: 700px) {
+            nav {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 
@@ -165,18 +202,41 @@
         <nav>
             <strong>Smart Property Maintenance</strong>
 
-            <div>
-                <a href="{% url 'properties:property_list' %}">
-                    Properties
-                </a>
+            <div class="nav-links">
+                {% if user.is_authenticated %}
+                    <span>
+                        Signed in as {{ user.username }}
+                    </span>
 
-                <a href="{% url 'properties:property_create' %}">
-                    Add Property
-                </a>
+                    <a href="{% url 'properties:property_list' %}">
+                        Properties
+                    </a>
 
-                <a href="/admin/">
-                    Admin
-                </a>
+                    <a href="{% url 'properties:property_create' %}">
+                        Add Property
+                    </a>
+
+                    {% if user.is_staff %}
+                        <a href="/admin/">
+                            Admin
+                        </a>
+                    {% endif %}
+
+                    <form
+                        method="post"
+                        action="{% url 'accounts:logout' %}"
+                        class="logout-form"
+                    >
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="logout-button"
+                        >
+                            Logout
+                        </button>
+                    </form>
+                {% endif %}
             </div>
         </nav>
     </header>

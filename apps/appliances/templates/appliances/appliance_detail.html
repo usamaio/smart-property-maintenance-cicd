@@ -104,63 +104,74 @@
     </div>
 
     <div class="card">
-        <h2>Warranties</h2>
+        <h2>Warranty</h2>
 
-        <a
-            href="{% url 'appliances:warranty_create' appliance.public_id %}"
-            class="button"
-        >
-            Add Warranty
-        </a>
+        {% if warranty %}
+            <p>
+                <strong>Provider:</strong>
+                {{ warranty.provider }}
+            </p>
 
-        {% if warranties %}
-            <div style="margin-top: 20px;">
-                {% for warranty in warranties %}
-                    <div class="card">
-                        <h3>{{ warranty.provider }}</h3>
+            <p>
+                <strong>Policy number:</strong>
+                {{ warranty.policy_number|default:"Not provided" }}
+            </p>
 
-                        <p>
-                            <strong>Policy number:</strong>
-                            {{ warranty.policy_number|default:"Not provided" }}
-                        </p>
+            <p>
+                <strong>Start date:</strong>
+                {{ warranty.start_date|date:"d F Y" }}
+            </p>
 
-                        <p>
-                            <strong>Start date:</strong>
-                            {{ warranty.start_date|date:"d F Y" }}
-                        </p>
+            <p>
+                <strong>Expiry date:</strong>
+                {{ warranty.expiry_date|date:"d F Y" }}
+            </p>
 
-                        <p>
-                            <strong>Expiry date:</strong>
-                            {{ warranty.expiry_date|date:"d F Y" }}
-                        </p>
+            <p>
+                <strong>Status:</strong>
 
-                        <p>
-                            <strong>Notes:</strong>
-                            {{ warranty.notes|default:"No notes added." }}
-                        </p>
+                {% if warranty.is_active %}
+                    <span class="status-active">
+                        Active
+                    </span>
+                {% else %}
+                    <span class="status-inactive">
+                        Expired
+                    </span>
+                {% endif %}
+            </p>
 
-                        <div class="actions">
-                            <a
-                                href="{% url 'appliances:warranty_update' warranty.public_id %}"
-                                class="button"
-                            >
-                                Edit Warranty
-                            </a>
+            <p>
+                <strong>Notes:</strong>
+                {{ warranty.notes|default:"No notes added." }}
+            </p>
 
-                            <a
-                                href="{% url 'appliances:warranty_delete' warranty.public_id %}"
-                                class="button button-danger"
-                            >
-                                Delete Warranty
-                            </a>
-                        </div>
-                    </div>
-                {% endfor %}
+            <div class="actions">
+                <a
+                    href="{% url 'appliances:warranty_update' warranty.public_id %}"
+                    class="button"
+                >
+                    Edit Warranty
+                </a>
+
+                <a
+                    href="{% url 'appliances:warranty_delete' warranty.public_id %}"
+                    class="button button-danger"
+                >
+                    Delete Warranty
+                </a>
             </div>
         {% else %}
-            <p style="margin-top: 20px;">
-                No warranties have been added for this appliance.
+            <p>
+                No warranty has been added for this appliance.
             </p>
+
+            <a
+                href="{% url 'appliances:warranty_create' appliance.public_id %}"
+                class="button"
+            >
+                Add Warranty
+            </a>
         {% endif %}
     </div>
 
@@ -169,7 +180,8 @@
 
         {% if appliance.has_individual_qr %}
             <p>
-                QR-code generation will be completed during Sprint 8.
+                QR-code generation will be implemented during the
+                QR-code development stage.
             </p>
         {% else %}
             <p>

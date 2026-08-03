@@ -1,0 +1,55 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {% if appliance %}
+        Edit Appliance
+    {% else %}
+        Add Appliance
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        {% if appliance %}
+            <h1>Edit Appliance</h1>
+        {% else %}
+            <h1>Add Appliance</h1>
+        {% endif %}
+
+        <p>
+            Property: <strong>{{ property.name }}</strong>
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="actions">
+                <button type="submit" class="button">
+                    {% if appliance %}
+                        Save Changes
+                    {% else %}
+                        Add Appliance
+                    {% endif %}
+                </button>
+
+                {% if appliance %}
+                    <a
+                        href="{% url 'appliances:appliance_detail' appliance.public_id %}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                {% else %}
+                    <a
+                        href="{% url 'properties:property_detail' property.public_id %}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+{% endblock %}
