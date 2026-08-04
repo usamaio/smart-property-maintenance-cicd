@@ -1,0 +1,164 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Maintenance Requests
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Maintenance Requests</h1>
+
+        <p>
+            Create and monitor property and appliance maintenance issues.
+        </p>
+
+        <div class="actions">
+            <a
+                href="{% url 'maintenance:maintenance_request_create' %}"
+                class="button"
+            >
+                Add Maintenance Request
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Filter Requests</h2>
+
+        <form method="get">
+            <p>
+                <label for="status-filter">
+                    Status
+                </label>
+
+                <select
+                    name="status"
+                    id="status-filter"
+                >
+                    <option value="">
+                        All statuses
+                    </option>
+
+                    {% for value, label in status_choices %}
+                        <option
+                            value="{{ value }}"
+                            {% if selected_status == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p>
+                <label for="priority-filter">
+                    Priority
+                </label>
+
+                <select
+                    name="priority"
+                    id="priority-filter"
+                >
+                    <option value="">
+                        All priorities
+                    </option>
+
+                    {% for value, label in priority_choices %}
+                        <option
+                            value="{{ value }}"
+                            {% if selected_priority == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    Apply Filters
+                </button>
+
+                <a
+                    href="{% url 'maintenance:maintenance_request_list' %}"
+                    class="button button-secondary"
+                >
+                    Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+
+    {% if maintenance_requests %}
+        {% for maintenance_request in maintenance_requests %}
+            <div class="card">
+                <h2>
+                    {{ maintenance_request.title }}
+                </h2>
+
+                <p>
+                    <strong>Property:</strong>
+                    {{ maintenance_request.property.name }}
+                </p>
+
+                <p>
+                    <strong>Category:</strong>
+                    {{ maintenance_request.get_category_display }}
+                </p>
+
+                <p>
+                    <strong>Priority:</strong>
+                    {{ maintenance_request.get_priority_display }}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {{ maintenance_request.get_status_display }}
+                </p>
+
+                <p>
+                    <strong>Created:</strong>
+                    {{ maintenance_request.created_at|date:"d F Y H:i" }}
+                </p>
+
+                <div class="actions">
+                    <a
+                        href="{% url 'maintenance:maintenance_request_detail' maintenance_request.public_id %}"
+                        class="button"
+                    >
+                        View Request
+                    </a>
+
+                    <a
+                        href="{% url 'maintenance:maintenance_request_update' maintenance_request.public_id %}"
+                        class="button button-secondary"
+                    >
+                        Edit Request
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card empty-state">
+            <h2>No maintenance requests found</h2>
+
+            <p>
+                Create a maintenance request to start tracking an issue.
+            </p>
+
+            <a
+                href="{% url 'maintenance:maintenance_request_create' %}"
+                class="button"
+            >
+                Add Maintenance Request
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}

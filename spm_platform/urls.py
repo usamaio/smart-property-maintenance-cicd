@@ -26,4 +26,9 @@ urlpatterns = [
         'appliances/',
         include('apps.appliances.urls', namespace='appliances'),
     ),
+
+    path(
+        'maintenance/',
+        include('apps.maintenance.urls', namespace='maintenance'),
+    ),
 ]

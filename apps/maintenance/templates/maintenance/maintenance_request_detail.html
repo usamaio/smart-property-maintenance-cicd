@@ -1,0 +1,123 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {{ maintenance_request.title }}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>{{ maintenance_request.title }}</h1>
+
+        <p>
+            <strong>Property:</strong>
+            {{ maintenance_request.property.name }}
+        </p>
+
+        <p>
+            <strong>Room:</strong>
+
+            {% if maintenance_request.room %}
+                {{ maintenance_request.room.name }}
+            {% else %}
+                Not assigned
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Appliance:</strong>
+
+            {% if maintenance_request.appliance %}
+                <a
+                    href="{% url 'appliances:appliance_detail' maintenance_request.appliance.public_id %}"
+                >
+                    {{ maintenance_request.appliance.name }}
+                </a>
+            {% else %}
+                Not assigned
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Category:</strong>
+            {{ maintenance_request.get_category_display }}
+        </p>
+
+        <p>
+            <strong>Priority:</strong>
+            {{ maintenance_request.get_priority_display }}
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+            {{ maintenance_request.get_status_display }}
+        </p>
+
+        <p>
+            <strong>Description:</strong>
+        </p>
+
+        <p>
+            {{ maintenance_request.description|linebreaksbr }}
+        </p>
+
+        <p>
+            <strong>Target date:</strong>
+
+            {% if maintenance_request.target_date %}
+                {{ maintenance_request.target_date|date:"d F Y" }}
+            {% else %}
+                Not specified
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Resolution notes:</strong>
+        </p>
+
+        <p>
+            {% if maintenance_request.resolution_notes %}
+                {{ maintenance_request.resolution_notes|linebreaksbr }}
+            {% else %}
+                No resolution notes have been added.
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Requested by:</strong>
+            {{ maintenance_request.requested_by.username }}
+        </p>
+
+        <p>
+            <strong>Created:</strong>
+            {{ maintenance_request.created_at|date:"d F Y H:i" }}
+        </p>
+
+        <p>
+            <strong>Last updated:</strong>
+            {{ maintenance_request.updated_at|date:"d F Y H:i" }}
+        </p>
+
+        <div class="actions">
+            <a
+                href="{% url 'maintenance:maintenance_request_update' maintenance_request.public_id %}"
+                class="button"
+            >
+                Edit Request
+            </a>
+
+            <a
+                href="{% url 'maintenance:maintenance_request_delete' maintenance_request.public_id %}"
+                class="button button-danger"
+            >
+                Delete Request
+            </a>
+
+            <a
+                href="{% url 'maintenance:maintenance_request_list' %}"
+                class="button button-secondary"
+            >
+                Back to Requests
+            </a>
+        </div>
+    </div>
+{% endblock %}

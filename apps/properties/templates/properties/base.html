@@ -215,6 +215,10 @@
                     <a href="{% url 'properties:property_create' %}">
                         Add Property
                     </a>
+                    
+                    <a href="{% url 'maintenance:maintenance_request_list' %}">
+                        Maintenance Requests
+                    </a>
 
                     {% if user.is_staff %}
                         <a href="/admin/">

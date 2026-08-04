@@ -1,0 +1,59 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {% if maintenance_request %}
+        Edit Maintenance Request
+    {% else %}
+        Add Maintenance Request
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        {% if maintenance_request %}
+            <h1>Edit Maintenance Request</h1>
+        {% else %}
+            <h1>Add Maintenance Request</h1>
+        {% endif %}
+
+        <p>
+            Select the affected property and provide details about the
+            maintenance issue.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    {% if maintenance_request %}
+                        Save Changes
+                    {% else %}
+                        Create Request
+                    {% endif %}
+                </button>
+
+                {% if maintenance_request %}
+                    <a
+                        href="{% url 'maintenance:maintenance_request_detail' maintenance_request.public_id %}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                {% else %}
+                    <a
+                        href="{% url 'maintenance:maintenance_request_list' %}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+{% endblock %}
