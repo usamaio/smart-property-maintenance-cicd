@@ -1,23 +1,24 @@
 {% extends "properties/base.html" %}
 
 {% block title %}
-    {% if appliance %}
-        Edit Appliance
+    {% if maintenance_request %}
+        Edit Maintenance Request
     {% else %}
-        Add Appliance
+        Add Maintenance Request
     {% endif %}
 {% endblock %}
 
 {% block content %}
     <div class="card">
-        {% if appliance %}
-            <h1>Edit Appliance</h1>
+        {% if maintenance_request %}
+            <h1>Edit Maintenance Request</h1>
         {% else %}
-            <h1>Add Appliance</h1>
+            <h1>Add Maintenance Request</h1>
         {% endif %}
 
         <p>
-            Property: <strong>{{ property.name }}</strong>
+            Select the affected property and provide details about the
+            maintenance issue.
         </p>
 
         <form method="post">
@@ -26,24 +27,27 @@
             {{ form.as_p }}
 
             <div class="actions">
-                <button type="submit" class="button">
-                    {% if appliance %}
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    {% if maintenance_request %}
                         Save Changes
                     {% else %}
-                        Add Appliance
+                        Create Request
                     {% endif %}
                 </button>
 
-                {% if appliance %}
+                {% if maintenance_request %}
                     <a
-                        href="{% url 'appliances:appliance_detail' appliance.public_id %}"
+                        href="{% url 'maintenance:maintenance_request_detail' maintenance_request.public_id %}"
                         class="button button-secondary"
                     >
                         Cancel
                     </a>
                 {% else %}
                     <a
-                        href="{% url 'properties:property_detail' property.public_id %}"
+                        href="{% url 'maintenance:maintenance_request_list' %}"
                         class="button button-secondary"
                     >
                         Cancel

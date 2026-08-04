@@ -1,0 +1,46 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {% if room %}
+        Edit Room
+    {% else %}
+        Add Room
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        {% if room %}
+            <h1>Edit Room</h1>
+        {% else %}
+            <h1>Add Room</h1>
+        {% endif %}
+
+        <p>
+            Property: <strong>{{ property.name }}</strong>
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="actions">
+                <button type="submit" class="button">
+                    {% if room %}
+                        Save Changes
+                    {% else %}
+                        Add Room
+                    {% endif %}
+                </button>
+
+                <a
+                    href="{% url 'properties:property_detail' property.public_id %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

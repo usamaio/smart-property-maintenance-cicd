@@ -1,0 +1,43 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Delete Maintenance Request
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Delete Maintenance Request</h1>
+
+        <p>
+            Are you sure you want to delete:
+        </p>
+
+        <p>
+            <strong>{{ maintenance_request.title }}</strong>
+        </p>
+
+        <p>
+            This action cannot be undone.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button button-danger"
+                >
+                    Confirm Delete
+                </button>
+
+                <a
+                    href="{% url 'maintenance:maintenance_request_detail' maintenance_request.public_id %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
