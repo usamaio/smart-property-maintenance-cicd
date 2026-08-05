@@ -1,8 +1,11 @@
+import builtins
 import uuid
 
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 from apps.appliances.models import Appliance
 from apps.properties.models import Property, Room
@@ -258,3 +261,153 @@ class ServiceRecord(models.Model):
 
         if errors:
             raise ValidationError(errors)
+
+
+class MaintenanceSchedule(models.Model):
+    FREQUENCY_CHOICES = (
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly'),
+        ('quarterly', 'Quarterly'),
+        ('six_monthly', 'Every Six Months'),
+        ('annually', 'Annually'),
+    )
+
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name='maintenance_schedules',
+    )
+
+    appliance = models.ForeignKey(
+        Appliance,
+        on_delete=models.SET_NULL,
+        related_name='maintenance_schedules',
+        blank=True,
+        null=True,
+    )
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='maintenance_schedules_created',
+    )
+
+    task_name = models.CharField(
+        max_length=150,
+    )
+
+    description = models.TextField(
+        blank=True,
+    )
+
+    frequency = models.CharField(
+        max_length=20,
+        choices=FREQUENCY_CHOICES,
+        default='annually',
+    )
+
+    next_due_date = models.DateField()
+
+    last_completed_date = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        ordering = ['next_due_date', 'task_name']
+        verbose_name = 'Maintenance Schedule'
+        verbose_name_plural = 'Maintenance Schedules'
+
+    def __str__(self):
+        return f'{self.task_name} - {self.property.name}'
+
+    def clean(self):
+        errors = {}
+
+        if (
+            self.appliance_id
+            and self.property_id
+            and self.appliance.property_id != self.property_id
+        ):
+            errors['appliance'] = (
+                'The selected appliance does not belong to the '
+                'selected property.'
+            )
+
+        if (
+            self.last_completed_date
+            and self.next_due_date
+            and self.next_due_date <= self.last_completed_date
+        ):
+            errors['next_due_date'] = (
+                'The next due date must be after the last completed date.'
+            )
+
+        if errors:
+            raise ValidationError(errors)
+
+    @builtins.property
+    def is_overdue(self):
+        return (
+            self.is_active
+            and self.next_due_date < timezone.localdate()
+        )
+
+    @builtins.property
+    def is_due_soon(self):
+        today = timezone.localdate()
+        due_soon_limit = today + relativedelta(days=30)
+
+        return (
+            self.is_active
+            and today <= self.next_due_date <= due_soon_limit
+        )
+
+    def calculate_next_due_date(self, from_date=None):
+        base_date = from_date or timezone.localdate()
+
+        frequency_map = {
+            'daily': relativedelta(days=1),
+            'weekly': relativedelta(weeks=1),
+            'monthly': relativedelta(months=1),
+            'quarterly': relativedelta(months=3),
+            'six_monthly': relativedelta(months=6),
+            'annually': relativedelta(years=1),
+        }
+
+        return base_date + frequency_map[self.frequency]
+
+    def mark_completed(self, completed_date=None):
+        completed_date = completed_date or timezone.localdate()
+
+        self.last_completed_date = completed_date
+        self.next_due_date = self.calculate_next_due_date(
+            from_date=completed_date,
+        )
+
+        self.save(
+            update_fields=[
+                'last_completed_date',
+                'next_due_date',
+                'updated_at',
+            ]
+        )

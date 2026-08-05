@@ -1,0 +1,163 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Maintenance Schedules
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Maintenance Schedules</h1>
+
+        <p>
+            Manage recurring preventive-maintenance activities.
+        </p>
+
+        <div class="actions">
+            <a
+                href="{% url 'maintenance:maintenance_schedule_create' %}"
+                class="button"
+            >
+                Add Maintenance Schedule
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Filter Schedules</h2>
+
+        <form method="get">
+            <p>
+                <label for="status-filter">
+                    Status
+                </label>
+
+                <select
+                    name="status"
+                    id="status-filter"
+                >
+                    <option value="">
+                        All schedules
+                    </option>
+
+                    <option
+                        value="active"
+                        {% if selected_status == "active" %}
+                            selected
+                        {% endif %}
+                    >
+                        Active
+                    </option>
+
+                    <option
+                        value="inactive"
+                        {% if selected_status == "inactive" %}
+                            selected
+                        {% endif %}
+                    >
+                        Inactive
+                    </option>
+
+                    <option
+                        value="overdue"
+                        {% if selected_status == "overdue" %}
+                            selected
+                        {% endif %}
+                    >
+                        Overdue
+                    </option>
+                </select>
+            </p>
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    Apply Filter
+                </button>
+
+                <a
+                    href="{% url 'maintenance:maintenance_schedule_list' %}"
+                    class="button button-secondary"
+                >
+                    Clear Filter
+                </a>
+            </div>
+        </form>
+    </div>
+
+    {% if maintenance_schedules %}
+        {% for schedule in maintenance_schedules %}
+            <div class="card">
+                <h2>{{ schedule.task_name }}</h2>
+
+                <p>
+                    <strong>Property:</strong>
+                    {{ schedule.property.name }}
+                </p>
+
+                <p>
+                    <strong>Appliance:</strong>
+
+                    {% if schedule.appliance %}
+                        {{ schedule.appliance.name }}
+                    {% else %}
+                        Property-level schedule
+                    {% endif %}
+                </p>
+
+                <p>
+                    <strong>Frequency:</strong>
+                    {{ schedule.get_frequency_display }}
+                </p>
+
+                <p>
+                    <strong>Next due:</strong>
+                    {{ schedule.next_due_date|date:"d F Y" }}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+
+                    {% if not schedule.is_active %}
+                        Inactive
+                    {% elif schedule.is_overdue %}
+                        <span class="status-inactive">
+                            Overdue
+                        </span>
+                    {% elif schedule.is_due_soon %}
+                        Due Soon
+                    {% else %}
+                        <span class="status-active">
+                            Active
+                        </span>
+                    {% endif %}
+                </p>
+
+                <div class="actions">
+                    <a
+                        href="{% url 'maintenance:maintenance_schedule_detail' schedule.public_id %}"
+                        class="button"
+                    >
+                        View Schedule
+                    </a>
+
+                    <a
+                        href="{% url 'maintenance:maintenance_schedule_update' schedule.public_id %}"
+                        class="button button-secondary"
+                    >
+                        Edit Schedule
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card empty-state">
+            <h2>No maintenance schedules found</h2>
+
+            <p>
+                Add a recurring schedule to start tracking preventive work.
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}
