@@ -3,7 +3,11 @@ from django import forms
 from apps.appliances.models import Appliance
 from apps.properties.models import Property, Room
 
-from .models import MaintenanceRequest, ServiceRecord
+from .models import (
+    MaintenanceRequest,
+    MaintenanceSchedule,
+    ServiceRecord,
+)
 
 
 class MaintenanceRequestForm(forms.ModelForm):
@@ -27,6 +31,9 @@ class MaintenanceRequestForm(forms.ModelForm):
             'description': forms.Textarea(
                 attrs={
                     'rows': 5,
+                    'placeholder': (
+                        'Describe the maintenance issue clearly.'
+                    ),
                 }
             ),
             'target_date': forms.DateInput(
@@ -37,6 +44,10 @@ class MaintenanceRequestForm(forms.ModelForm):
             'resolution_notes': forms.Textarea(
                 attrs={
                     'rows': 4,
+                    'placeholder': (
+                        'Add resolution details when the request '
+                        'is completed.'
+                    ),
                 }
             ),
         }
@@ -77,6 +88,18 @@ class MaintenanceRequestForm(forms.ModelForm):
 
         self.fields['target_date'].required = False
         self.fields['resolution_notes'].required = False
+
+    def clean_title(self):
+        return self.cleaned_data['title'].strip()
+
+    def clean_description(self):
+        return self.cleaned_data['description'].strip()
+
+    def clean_resolution_notes(self):
+        return self.cleaned_data.get(
+            'resolution_notes',
+            '',
+        ).strip()
 
     def clean(self):
         cleaned_data = super().clean()
@@ -302,6 +325,124 @@ class ServiceRecordForm(forms.ModelForm):
             self.add_error(
                 'cost',
                 'Cost cannot be negative.',
+            )
+
+        return cleaned_data
+
+
+class MaintenanceScheduleForm(forms.ModelForm):
+    class Meta:
+        model = MaintenanceSchedule
+
+        fields = [
+            'property',
+            'appliance',
+            'task_name',
+            'description',
+            'frequency',
+            'next_due_date',
+            'last_completed_date',
+            'is_active',
+        ]
+
+        widgets = {
+            'description': forms.Textarea(
+                attrs={
+                    'rows': 4,
+                    'placeholder': (
+                        'Describe the scheduled maintenance task.'
+                    ),
+                }
+            ),
+            'next_due_date': forms.DateInput(
+                attrs={
+                    'type': 'date',
+                }
+            ),
+            'last_completed_date': forms.DateInput(
+                attrs={
+                    'type': 'date',
+                }
+            ),
+        }
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.user = user
+
+        if user is not None:
+            self.fields['property'].queryset = Property.objects.filter(
+                owner=user,
+                is_active=True,
+            )
+
+            self.fields['appliance'].queryset = Appliance.objects.filter(
+                property__owner=user,
+            ).select_related(
+                'property',
+                'room',
+            )
+        else:
+            self.fields['property'].queryset = Property.objects.none()
+            self.fields['appliance'].queryset = Appliance.objects.none()
+
+        self.fields['appliance'].required = False
+        self.fields['appliance'].empty_label = (
+            'Property-level schedule'
+        )
+
+        self.fields['description'].required = False
+        self.fields['last_completed_date'].required = False
+
+    def clean_task_name(self):
+        return self.cleaned_data['task_name'].strip()
+
+    def clean_description(self):
+        return self.cleaned_data.get(
+            'description',
+            '',
+        ).strip()
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        property_obj = cleaned_data.get('property')
+        appliance = cleaned_data.get('appliance')
+        next_due_date = cleaned_data.get('next_due_date')
+        last_completed_date = cleaned_data.get(
+            'last_completed_date'
+        )
+
+        if (
+            property_obj
+            and self.user
+            and property_obj.owner_id != self.user.id
+        ):
+            self.add_error(
+                'property',
+                'You do not have permission to use this property.',
+            )
+
+        if (
+            appliance
+            and property_obj
+            and appliance.property_id != property_obj.id
+        ):
+            self.add_error(
+                'appliance',
+                'The selected appliance does not belong to this property.',
+            )
+
+        if (
+            next_due_date
+            and last_completed_date
+            and next_due_date <= last_completed_date
+        ):
+            self.add_error(
+                'next_due_date',
+                'The next due date must be after the '
+                'last completed date.',
             )
 
         return cleaned_data

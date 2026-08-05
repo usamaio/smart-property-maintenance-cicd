@@ -220,6 +220,10 @@
                         Maintenance Requests
                     </a>
 
+                    <a href="{% url 'maintenance:maintenance_schedule_list' %}">
+                        Maintenance Schedules
+                    </a>
+
                     {% if user.is_staff %}
                         <a href="/admin/">
                             Admin

@@ -1,11 +1,20 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from apps.appliances.models import Appliance
 
-from .forms import MaintenanceRequestForm, ServiceRecordForm
-from .models import MaintenanceRequest, ServiceRecord
+from .forms import (
+    MaintenanceRequestForm,
+    MaintenanceScheduleForm,
+    ServiceRecordForm,
+)
+from .models import (
+    MaintenanceRequest,
+    MaintenanceSchedule,
+    ServiceRecord,
+)
 
 
 @login_required
@@ -33,16 +42,12 @@ def maintenance_request_list(request):
     }
 
     if selected_status in valid_statuses:
-        requests = requests.filter(
-            status=selected_status,
-        )
+        requests = requests.filter(status=selected_status)
     else:
         selected_status = ''
 
     if selected_priority in valid_priorities:
-        requests = requests.filter(
-            priority=selected_priority,
-        )
+        requests = requests.filter(priority=selected_priority)
     else:
         selected_priority = ''
 
@@ -120,14 +125,10 @@ def maintenance_request_create(request):
             user=request.user,
         )
 
-    context = {
-        'form': form,
-    }
-
     return render(
         request,
         'maintenance/maintenance_request_form.html',
-        context,
+        {'form': form},
     )
 
 
@@ -196,14 +197,10 @@ def maintenance_request_delete(request, public_id):
             'maintenance:maintenance_request_list',
         )
 
-    context = {
-        'maintenance_request': maintenance_request,
-    }
-
     return render(
         request,
         'maintenance/maintenance_request_confirm_delete.html',
-        context,
+        {'maintenance_request': maintenance_request},
     )
 
 
@@ -225,9 +222,7 @@ def service_record_list(request):
 
     appliances = Appliance.objects.filter(
         property__owner=request.user,
-    ).select_related(
-        'property',
-    )
+    ).select_related('property')
 
     if selected_appliance:
         records = records.filter(
@@ -261,14 +256,10 @@ def service_record_detail(request, public_id):
         appliance__property__owner=request.user,
     )
 
-    context = {
-        'service_record': service_record,
-    }
-
     return render(
         request,
         'maintenance/service_record_detail.html',
-        context,
+        {'service_record': service_record},
     )
 
 
@@ -321,14 +312,10 @@ def service_record_create(request):
             maintenance_request=maintenance_request,
         )
 
-    context = {
-        'form': form,
-    }
-
     return render(
         request,
         'maintenance/service_record_form.html',
-        context,
+        {'form': form},
     )
 
 
@@ -397,14 +384,192 @@ def service_record_delete(request, public_id):
             'maintenance:service_record_list',
         )
 
+    return render(
+        request,
+        'maintenance/service_record_confirm_delete.html',
+        {'service_record': service_record},
+    )
+
+
+@login_required
+def maintenance_schedule_list(request):
+    schedules = MaintenanceSchedule.objects.filter(
+        property__owner=request.user,
+    ).select_related(
+        'property',
+        'appliance',
+        'created_by',
+    )
+
+    selected_status = request.GET.get('status', '').strip()
+
+    if selected_status == 'active':
+        schedules = schedules.filter(is_active=True)
+    elif selected_status == 'inactive':
+        schedules = schedules.filter(is_active=False)
+    elif selected_status == 'overdue':
+        schedules = schedules.filter(
+            is_active=True,
+            next_due_date__lt=timezone.localdate(),
+        )
+    else:
+        selected_status = ''
+
     context = {
-        'service_record': service_record,
+        'maintenance_schedules': schedules,
+        'selected_status': selected_status,
     }
 
     return render(
         request,
-        'maintenance/service_record_confirm_delete.html',
+        'maintenance/maintenance_schedule_list.html',
         context,
     )
 
-    
+
+@login_required
+def maintenance_schedule_detail(request, public_id):
+    schedule = get_object_or_404(
+        MaintenanceSchedule.objects.select_related(
+            'property',
+            'appliance',
+            'created_by',
+        ),
+        public_id=public_id,
+        property__owner=request.user,
+    )
+
+    return render(
+        request,
+        'maintenance/maintenance_schedule_detail.html',
+        {'schedule': schedule},
+    )
+
+
+@login_required
+def maintenance_schedule_create(request):
+    if request.method == 'POST':
+        form = MaintenanceScheduleForm(
+            request.POST,
+            user=request.user,
+        )
+
+        if form.is_valid():
+            schedule = form.save(commit=False)
+            schedule.created_by = request.user
+            schedule.save()
+
+            messages.success(
+                request,
+                'Maintenance schedule created successfully.',
+            )
+
+            return redirect(
+                'maintenance:maintenance_schedule_detail',
+                public_id=schedule.public_id,
+            )
+    else:
+        form = MaintenanceScheduleForm(
+            user=request.user,
+        )
+
+    return render(
+        request,
+        'maintenance/maintenance_schedule_form.html',
+        {'form': form},
+    )
+
+
+@login_required
+def maintenance_schedule_update(request, public_id):
+    schedule = get_object_or_404(
+        MaintenanceSchedule,
+        public_id=public_id,
+        property__owner=request.user,
+    )
+
+    if request.method == 'POST':
+        form = MaintenanceScheduleForm(
+            request.POST,
+            instance=schedule,
+            user=request.user,
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                'Maintenance schedule updated successfully.',
+            )
+
+            return redirect(
+                'maintenance:maintenance_schedule_detail',
+                public_id=schedule.public_id,
+            )
+    else:
+        form = MaintenanceScheduleForm(
+            instance=schedule,
+            user=request.user,
+        )
+
+    context = {
+        'form': form,
+        'schedule': schedule,
+    }
+
+    return render(
+        request,
+        'maintenance/maintenance_schedule_form.html',
+        context,
+    )
+
+
+@login_required
+def maintenance_schedule_delete(request, public_id):
+    schedule = get_object_or_404(
+        MaintenanceSchedule,
+        public_id=public_id,
+        property__owner=request.user,
+    )
+
+    if request.method == 'POST':
+        schedule.delete()
+
+        messages.success(
+            request,
+            'Maintenance schedule deleted successfully.',
+        )
+
+        return redirect(
+            'maintenance:maintenance_schedule_list',
+        )
+
+    return render(
+        request,
+        'maintenance/maintenance_schedule_confirm_delete.html',
+        {'schedule': schedule},
+    )
+
+
+@login_required
+def maintenance_schedule_complete(request, public_id):
+    schedule = get_object_or_404(
+        MaintenanceSchedule,
+        public_id=public_id,
+        property__owner=request.user,
+    )
+
+    if request.method == 'POST':
+        schedule.mark_completed()
+
+        messages.success(
+            request,
+            'Maintenance schedule marked as completed. '
+            'The next due date has been calculated automatically.',
+        )
+
+    return redirect(
+        'maintenance:maintenance_schedule_detail',
+        public_id=schedule.public_id,
+    )

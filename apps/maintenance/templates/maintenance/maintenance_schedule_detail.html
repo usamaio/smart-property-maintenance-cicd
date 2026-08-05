@@ -1,0 +1,115 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {{ schedule.task_name }}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>{{ schedule.task_name }}</h1>
+
+        <p>
+            <strong>Property:</strong>
+            {{ schedule.property.name }}
+        </p>
+
+        <p>
+            <strong>Appliance:</strong>
+
+            {% if schedule.appliance %}
+                <a
+                    href="{% url 'appliances:appliance_detail' schedule.appliance.public_id %}"
+                >
+                    {{ schedule.appliance.name }}
+                </a>
+            {% else %}
+                Property-level schedule
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Description:</strong>
+        </p>
+
+        <p>
+            {{ schedule.description|default:"No description added."|linebreaksbr }}
+        </p>
+
+        <p>
+            <strong>Frequency:</strong>
+            {{ schedule.get_frequency_display }}
+        </p>
+
+        <p>
+            <strong>Next due date:</strong>
+            {{ schedule.next_due_date|date:"d F Y" }}
+        </p>
+
+        <p>
+            <strong>Last completed date:</strong>
+
+            {% if schedule.last_completed_date %}
+                {{ schedule.last_completed_date|date:"d F Y" }}
+            {% else %}
+                Not completed yet
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+
+            {% if not schedule.is_active %}
+                Inactive
+            {% elif schedule.is_overdue %}
+                <span class="status-inactive">
+                    Overdue
+                </span>
+            {% elif schedule.is_due_soon %}
+                Due Soon
+            {% else %}
+                <span class="status-active">
+                    Active
+                </span>
+            {% endif %}
+        </p>
+
+        <div class="actions">
+            <a
+                href="{% url 'maintenance:maintenance_schedule_update' schedule.public_id %}"
+                class="button"
+            >
+                Edit Schedule
+            </a>
+
+            {% if schedule.is_active %}
+                <form
+                    method="post"
+                    action="{% url 'maintenance:maintenance_schedule_complete' schedule.public_id %}"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="button"
+                    >
+                        Mark as Completed
+                    </button>
+                </form>
+            {% endif %}
+
+            <a
+                href="{% url 'maintenance:maintenance_schedule_delete' schedule.public_id %}"
+                class="button button-danger"
+            >
+                Delete Schedule
+            </a>
+
+            <a
+                href="{% url 'maintenance:maintenance_schedule_list' %}"
+                class="button button-secondary"
+            >
+                Back to Schedules
+            </a>
+        </div>
+    </div>
+{% endblock %}

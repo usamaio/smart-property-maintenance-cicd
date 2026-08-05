@@ -1,0 +1,51 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {% if schedule %}
+        Edit Maintenance Schedule
+    {% else %}
+        Add Maintenance Schedule
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>
+            {% if schedule %}
+                Edit Maintenance Schedule
+            {% else %}
+                Add Maintenance Schedule
+            {% endif %}
+        </h1>
+
+        <p>
+            Create a recurring preventive-maintenance task.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    {% if schedule %}
+                        Save Changes
+                    {% else %}
+                        Create Schedule
+                    {% endif %}
+                </button>
+
+                <a
+                    href="{% url 'maintenance:maintenance_schedule_list' %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

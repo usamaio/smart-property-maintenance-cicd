@@ -45,6 +45,37 @@ urlpatterns = [
     ),
 
     path(
+        'schedules/',
+        views.maintenance_schedule_list,
+        name='maintenance_schedule_list',
+    ),
+    path(
+        'schedules/add/',
+        views.maintenance_schedule_create,
+        name='maintenance_schedule_create',
+    ),
+    path(
+        'schedules/<uuid:public_id>/',
+        views.maintenance_schedule_detail,
+        name='maintenance_schedule_detail',
+    ),
+    path(
+        'schedules/<uuid:public_id>/edit/',
+        views.maintenance_schedule_update,
+        name='maintenance_schedule_update',
+    ),
+    path(
+        'schedules/<uuid:public_id>/delete/',
+        views.maintenance_schedule_delete,
+        name='maintenance_schedule_delete',
+    ),
+    path(
+        'schedules/<uuid:public_id>/complete/',
+        views.maintenance_schedule_complete,
+        name='maintenance_schedule_complete',
+    ),
+
+    path(
         '<uuid:public_id>/',
         views.maintenance_request_detail,
         name='maintenance_request_detail',

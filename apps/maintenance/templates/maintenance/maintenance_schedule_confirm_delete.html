@@ -1,0 +1,43 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Delete Maintenance Schedule
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Delete Maintenance Schedule</h1>
+
+        <p>
+            Are you sure you want to delete:
+        </p>
+
+        <p>
+            <strong>{{ schedule.task_name }}</strong>
+        </p>
+
+        <p>
+            This action cannot be undone.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button button-danger"
+                >
+                    Confirm Delete
+                </button>
+
+                <a
+                    href="{% url 'maintenance:maintenance_schedule_detail' schedule.public_id %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
