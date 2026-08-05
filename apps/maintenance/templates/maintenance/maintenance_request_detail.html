@@ -112,6 +112,15 @@
                 Delete Request
             </a>
 
+            {% if maintenance_request.appliance %}
+                <a
+                    href="{% url 'maintenance:service_record_create' %}?request={{ maintenance_request.public_id }}"
+                    class="button"
+                >
+                    Add Service Record
+                </a>
+            {% endif %}
+
             <a
                 href="{% url 'maintenance:maintenance_request_list' %}"
                 class="button button-secondary"
@@ -119,5 +128,27 @@
                 Back to Requests
             </a>
         </div>
+    </div>
+
+    <div class="card">
+        <h2>Related Service Records</h2>
+
+        {% if service_records %}
+            {% for record in service_records %}
+                <p>
+                    <a
+                        href="{% url 'maintenance:service_record_detail' record.public_id %}"
+                    >
+                        {{ record.service_date|date:"d F Y" }}
+                        —
+                        {{ record.service_provider }}
+                    </a>
+                </p>
+            {% endfor %}
+        {% else %}
+            <p>
+                No service records are linked to this maintenance request.
+            </p>
+        {% endif %}
     </div>
 {% endblock %}

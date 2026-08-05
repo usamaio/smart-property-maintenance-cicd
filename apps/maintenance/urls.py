@@ -17,6 +17,33 @@ urlpatterns = [
         views.maintenance_request_create,
         name='maintenance_request_create',
     ),
+
+    path(
+        'service-records/',
+        views.service_record_list,
+        name='service_record_list',
+    ),
+    path(
+        'service-records/add/',
+        views.service_record_create,
+        name='service_record_create',
+    ),
+    path(
+        'service-records/<uuid:public_id>/',
+        views.service_record_detail,
+        name='service_record_detail',
+    ),
+    path(
+        'service-records/<uuid:public_id>/edit/',
+        views.service_record_update,
+        name='service_record_update',
+    ),
+    path(
+        'service-records/<uuid:public_id>/delete/',
+        views.service_record_delete,
+        name='service_record_delete',
+    ),
+
     path(
         '<uuid:public_id>/',
         views.maintenance_request_detail,
