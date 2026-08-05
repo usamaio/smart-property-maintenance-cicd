@@ -153,3 +153,108 @@ class MaintenanceRequest(models.Model):
 
         if errors:
             raise ValidationError(errors)
+
+
+class ServiceRecord(models.Model):
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    appliance = models.ForeignKey(
+        Appliance,
+        on_delete=models.CASCADE,
+        related_name='service_records',
+    )
+
+    maintenance_request = models.ForeignKey(
+        MaintenanceRequest,
+        on_delete=models.SET_NULL,
+        related_name='service_records',
+        blank=True,
+        null=True,
+    )
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='service_records_created',
+    )
+
+    service_date = models.DateField()
+
+    service_provider = models.CharField(
+        max_length=150,
+    )
+
+    technician_name = models.CharField(
+        max_length=150,
+        blank=True,
+    )
+
+    work_performed = models.TextField()
+
+    parts_replaced = models.TextField(
+        blank=True,
+    )
+
+    cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+    )
+
+    next_service_date = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    notes = models.TextField(
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+        ordering = ['-service_date', '-created_at']
+        verbose_name = 'Service Record'
+        verbose_name_plural = 'Service Records'
+
+    def __str__(self):
+        return f'{self.appliance.name} - {self.service_date}'
+
+    def clean(self):
+        errors = {}
+
+        if (
+            self.maintenance_request_id
+            and self.maintenance_request.appliance_id
+            and self.maintenance_request.appliance_id != self.appliance_id
+        ):
+            errors['maintenance_request'] = (
+                'The selected maintenance request is linked to a '
+                'different appliance.'
+            )
+
+        if (
+            self.next_service_date
+            and self.service_date
+            and self.next_service_date <= self.service_date
+        ):
+            errors['next_service_date'] = (
+                'The next service date must be after the service date.'
+            )
+
+        if self.cost is not None and self.cost < 0:
+            errors['cost'] = 'Cost cannot be negative.'
+
+        if errors:
+            raise ValidationError(errors)

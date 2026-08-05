@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import MaintenanceRequest
+from .models import MaintenanceRequest, ServiceRecord
 
 
 @admin.register(MaintenanceRequest)
@@ -39,4 +39,40 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
 
     ordering = (
         '-created_at',
+    )
+
+
+@admin.register(ServiceRecord)
+class ServiceRecordAdmin(admin.ModelAdmin):
+    list_display = (
+        'appliance',
+        'service_date',
+        'service_provider',
+        'technician_name',
+        'cost',
+        'next_service_date',
+    )
+
+    list_filter = (
+        'service_date',
+        'service_provider',
+        'next_service_date',
+    )
+
+    search_fields = (
+        'appliance__name',
+        'appliance__property__name',
+        'service_provider',
+        'technician_name',
+        'work_performed',
+    )
+
+    readonly_fields = (
+        'public_id',
+        'created_at',
+        'updated_at',
+    )
+
+    ordering = (
+        '-service_date',
     )

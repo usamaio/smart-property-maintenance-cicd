@@ -1,0 +1,132 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Service Record
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Service Record</h1>
+
+        <p>
+            <strong>Appliance:</strong>
+
+            <a
+                href="{% url 'appliances:appliance_detail' service_record.appliance.public_id %}"
+            >
+                {{ service_record.appliance.name }}
+            </a>
+        </p>
+
+        <p>
+            <strong>Property:</strong>
+            {{ service_record.appliance.property.name }}
+        </p>
+
+        <p>
+            <strong>Room:</strong>
+
+            {% if service_record.appliance.room %}
+                {{ service_record.appliance.room.name }}
+            {% else %}
+                Not assigned
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Service date:</strong>
+            {{ service_record.service_date|date:"d F Y" }}
+        </p>
+
+        <p>
+            <strong>Service provider:</strong>
+            {{ service_record.service_provider }}
+        </p>
+
+        <p>
+            <strong>Technician:</strong>
+            {{ service_record.technician_name|default:"Not provided" }}
+        </p>
+
+        <p>
+            <strong>Work performed:</strong>
+        </p>
+
+        <p>
+            {{ service_record.work_performed|linebreaksbr }}
+        </p>
+
+        <p>
+            <strong>Parts replaced:</strong>
+        </p>
+
+        <p>
+            {{ service_record.parts_replaced|default:"No parts recorded."|linebreaksbr }}
+        </p>
+
+        <p>
+            <strong>Cost:</strong>
+
+            {% if service_record.cost != None %}
+                £{{ service_record.cost }}
+            {% else %}
+                Not recorded
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Next service date:</strong>
+
+            {% if service_record.next_service_date %}
+                {{ service_record.next_service_date|date:"d F Y" }}
+            {% else %}
+                Not scheduled
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Related maintenance request:</strong>
+
+            {% if service_record.maintenance_request %}
+                <a
+                    href="{% url 'maintenance:maintenance_request_detail' service_record.maintenance_request.public_id %}"
+                >
+                    {{ service_record.maintenance_request.title }}
+                </a>
+            {% else %}
+                Not linked
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Notes:</strong>
+        </p>
+
+        <p>
+            {{ service_record.notes|default:"No additional notes."|linebreaksbr }}
+        </p>
+
+        <div class="actions">
+            <a
+                href="{% url 'maintenance:service_record_update' service_record.public_id %}"
+                class="button"
+            >
+                Edit Record
+            </a>
+
+            <a
+                href="{% url 'maintenance:service_record_delete' service_record.public_id %}"
+                class="button button-danger"
+            >
+                Delete Record
+            </a>
+
+            <a
+                href="{% url 'maintenance:service_record_list' %}"
+                class="button button-secondary"
+            >
+                Back to Service Records
+            </a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Service Records
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Service Records</h1>
+
+        <p>
+            View and manage appliance servicing history.
+        </p>
+
+        <div class="actions">
+            <a
+                href="{% url 'maintenance:service_record_create' %}"
+                class="button"
+            >
+                Add Service Record
+            </a>
+
+            <a
+                href="{% url 'maintenance:maintenance_request_list' %}"
+                class="button button-secondary"
+            >
+                Maintenance Requests
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Filter by Appliance</h2>
+
+        <form method="get">
+            <p>
+                <label for="appliance-filter">
+                    Appliance
+                </label>
+
+                <select
+                    name="appliance"
+                    id="appliance-filter"
+                >
+                    <option value="">
+                        All appliances
+                    </option>
+
+                    {% for appliance in appliances %}
+                        <option
+                            value="{{ appliance.public_id }}"
+                            {% if selected_appliance == appliance.public_id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ appliance.name }}
+                            -
+                            {{ appliance.property.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    Apply Filter
+                </button>
+
+                <a
+                    href="{% url 'maintenance:service_record_list' %}"
+                    class="button button-secondary"
+                >
+                    Clear Filter
+                </a>
+            </div>
+        </form>
+    </div>
+
+    {% if service_records %}
+        {% for record in service_records %}
+            <div class="card">
+                <h2>{{ record.appliance.name }}</h2>
+
+                <p>
+                    <strong>Property:</strong>
+                    {{ record.appliance.property.name }}
+                </p>
+
+                <p>
+                    <strong>Service date:</strong>
+                    {{ record.service_date|date:"d F Y" }}
+                </p>
+
+                <p>
+                    <strong>Provider:</strong>
+                    {{ record.service_provider }}
+                </p>
+
+                <p>
+                    <strong>Technician:</strong>
+                    {{ record.technician_name|default:"Not provided" }}
+                </p>
+
+                <p>
+                    <strong>Cost:</strong>
+
+                    {% if record.cost != None %}
+                        £{{ record.cost }}
+                    {% else %}
+                        Not recorded
+                    {% endif %}
+                </p>
+
+                <div class="actions">
+                    <a
+                        href="{% url 'maintenance:service_record_detail' record.public_id %}"
+                        class="button"
+                    >
+                        View Record
+                    </a>
+
+                    <a
+                        href="{% url 'maintenance:service_record_update' record.public_id %}"
+                        class="button button-secondary"
+                    >
+                        Edit Record
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card empty-state">
+            <h2>No service records found</h2>
+
+            <p>
+                Add the first service record for an appliance.
+            </p>
+
+            <a
+                href="{% url 'maintenance:service_record_create' %}"
+                class="button"
+            >
+                Add Service Record
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}

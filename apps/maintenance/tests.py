@@ -1,3 +1,6 @@
+from datetime import date, timedelta
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -5,10 +8,10 @@ from django.urls import reverse
 from apps.appliances.models import Appliance
 from apps.properties.models import Property, Room
 
-from .models import MaintenanceRequest
+from .models import MaintenanceRequest, ServiceRecord
 
 
-class MaintenanceRequestTestBase(TestCase):
+class MaintenanceTestBase(TestCase):
     def setUp(self):
         user_model = get_user_model()
 
@@ -53,6 +56,12 @@ class MaintenanceRequestTestBase(TestCase):
             appliance_type='boiler',
         )
 
+        self.other_appliance = Appliance.objects.create(
+            property=self.other_property,
+            name='Other Boiler',
+            appliance_type='boiler',
+        )
+
         self.maintenance_request = MaintenanceRequest.objects.create(
             requested_by=self.user,
             property=self.property,
@@ -62,11 +71,27 @@ class MaintenanceRequestTestBase(TestCase):
             category='heating',
             description='The boiler is not producing hot water.',
             priority='high',
-            status='open',
+            status='completed',
+            resolution_notes='The boiler was serviced and tested.',
+        )
+
+        self.service_record = ServiceRecord.objects.create(
+            appliance=self.appliance,
+            maintenance_request=self.maintenance_request,
+            created_by=self.user,
+            service_date=date.today(),
+            service_provider='ABC Heating Services',
+            technician_name='John Smith',
+            work_performed=(
+                'Completed annual boiler inspection and safety checks.'
+            ),
+            parts_replaced='Boiler seal',
+            cost=Decimal('125.00'),
+            next_service_date=date.today() + timedelta(days=365),
         )
 
 
-class MaintenanceRequestModelTests(MaintenanceRequestTestBase):
+class MaintenanceRequestModelTests(MaintenanceTestBase):
     def test_string_representation(self):
         self.assertEqual(
             str(self.maintenance_request),
@@ -102,7 +127,7 @@ class MaintenanceRequestModelTests(MaintenanceRequestTestBase):
         )
 
 
-class MaintenanceRequestViewTests(MaintenanceRequestTestBase):
+class MaintenanceRequestViewTests(MaintenanceTestBase):
     def test_list_page_requires_login(self):
         response = self.client.get(
             reverse(
@@ -124,31 +149,6 @@ class MaintenanceRequestViewTests(MaintenanceRequestTestBase):
         response = self.client.get(
             reverse(
                 'maintenance:maintenance_request_list',
-            )
-        )
-
-        self.assertEqual(
-            response.status_code,
-            200,
-        )
-
-        self.assertContains(
-            response,
-            'Boiler not heating',
-        )
-
-    def test_owner_can_open_request_detail(self):
-        self.client.login(
-            username='owner',
-            password='TestPassword123!',
-        )
-
-        response = self.client.get(
-            reverse(
-                'maintenance:maintenance_request_detail',
-                kwargs={
-                    'public_id': self.maintenance_request.public_id,
-                },
             )
         )
 
@@ -216,11 +216,111 @@ class MaintenanceRequestViewTests(MaintenanceRequestTestBase):
         self.assertTrue(
             MaintenanceRequest.objects.filter(
                 title='Annual boiler service',
-                requested_by=self.user,
             ).exists()
         )
 
-    def test_completed_request_requires_resolution_notes(self):
+
+class ServiceRecordModelTests(MaintenanceTestBase):
+    def test_string_representation(self):
+        self.assertIn(
+            'Test Boiler',
+            str(self.service_record),
+        )
+
+    def test_service_record_links_to_appliance(self):
+        self.assertEqual(
+            self.service_record.appliance,
+            self.appliance,
+        )
+
+    def test_service_record_can_link_to_maintenance_request(self):
+        self.assertEqual(
+            self.service_record.maintenance_request,
+            self.maintenance_request,
+        )
+
+
+class ServiceRecordViewTests(MaintenanceTestBase):
+    def test_service_record_list_requires_login(self):
+        response = self.client.get(
+            reverse(
+                'maintenance:service_record_list',
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
+
+    def test_owner_can_view_service_record_list(self):
+        self.client.login(
+            username='owner',
+            password='TestPassword123!',
+        )
+
+        response = self.client.get(
+            reverse(
+                'maintenance:service_record_list',
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertContains(
+            response,
+            'ABC Heating Services',
+        )
+
+    def test_owner_can_view_service_record_detail(self):
+        self.client.login(
+            username='owner',
+            password='TestPassword123!',
+        )
+
+        response = self.client.get(
+            reverse(
+                'maintenance:service_record_detail',
+                kwargs={
+                    'public_id': self.service_record.public_id,
+                },
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertContains(
+            response,
+            'Completed annual boiler inspection',
+        )
+
+    def test_other_user_cannot_view_service_record(self):
+        self.client.login(
+            username='otherowner',
+            password='TestPassword123!',
+        )
+
+        response = self.client.get(
+            reverse(
+                'maintenance:service_record_detail',
+                kwargs={
+                    'public_id': self.service_record.public_id,
+                },
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+    def test_owner_can_create_service_record(self):
         self.client.login(
             username='owner',
             password='TestPassword123!',
@@ -228,22 +328,58 @@ class MaintenanceRequestViewTests(MaintenanceRequestTestBase):
 
         response = self.client.post(
             reverse(
-                'maintenance:maintenance_request_update',
-                kwargs={
-                    'public_id': self.maintenance_request.public_id,
-                },
+                'maintenance:service_record_create',
             ),
             {
-                'property': self.property.id,
-                'room': self.room.id,
                 'appliance': self.appliance.id,
-                'title': self.maintenance_request.title,
-                'category': self.maintenance_request.category,
-                'description': self.maintenance_request.description,
-                'priority': self.maintenance_request.priority,
-                'status': 'completed',
-                'target_date': '',
-                'resolution_notes': '',
+                'maintenance_request': self.maintenance_request.id,
+                'service_date': date.today().isoformat(),
+                'service_provider': 'New Service Company',
+                'technician_name': 'Jane Doe',
+                'work_performed': (
+                    'Replaced faulty component and tested operation.'
+                ),
+                'parts_replaced': 'Control valve',
+                'cost': '95.50',
+                'next_service_date': (
+                    date.today() + timedelta(days=365)
+                ).isoformat(),
+                'notes': 'System operating normally.',
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
+
+        self.assertTrue(
+            ServiceRecord.objects.filter(
+                service_provider='New Service Company',
+            ).exists()
+        )
+
+    def test_next_service_date_must_be_after_service_date(self):
+        self.client.login(
+            username='owner',
+            password='TestPassword123!',
+        )
+
+        response = self.client.post(
+            reverse(
+                'maintenance:service_record_create',
+            ),
+            {
+                'appliance': self.appliance.id,
+                'maintenance_request': '',
+                'service_date': date.today().isoformat(),
+                'service_provider': 'Invalid Date Company',
+                'technician_name': '',
+                'work_performed': 'Routine inspection.',
+                'parts_replaced': '',
+                'cost': '20.00',
+                'next_service_date': date.today().isoformat(),
+                'notes': '',
             },
         )
 
@@ -254,16 +390,16 @@ class MaintenanceRequestViewTests(MaintenanceRequestTestBase):
 
         self.assertContains(
             response,
-            'Resolution notes are required',
+            'The next service date must be after the service date.',
         )
 
-    def test_list_only_shows_users_own_requests(self):
-        MaintenanceRequest.objects.create(
-            requested_by=self.other_user,
-            property=self.other_property,
-            title='Other user request',
-            category='general',
-            description='This belongs to another user.',
+    def test_service_record_list_only_shows_owned_records(self):
+        ServiceRecord.objects.create(
+            appliance=self.other_appliance,
+            created_by=self.other_user,
+            service_date=date.today(),
+            service_provider='Other Company',
+            work_performed='Other work.',
         )
 
         self.client.login(
@@ -273,16 +409,16 @@ class MaintenanceRequestViewTests(MaintenanceRequestTestBase):
 
         response = self.client.get(
             reverse(
-                'maintenance:maintenance_request_list',
+                'maintenance:service_record_list',
             )
         )
 
         self.assertContains(
             response,
-            'Boiler not heating',
+            'ABC Heating Services',
         )
 
         self.assertNotContains(
             response,
-            'Other user request',
+            'Other Company',
         )

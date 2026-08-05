@@ -1,0 +1,61 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    {% if service_record %}
+        Edit Service Record
+    {% else %}
+        Add Service Record
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>
+            {% if service_record %}
+                Edit Service Record
+            {% else %}
+                Add Service Record
+            {% endif %}
+        </h1>
+
+        <p>
+            Record completed work and future servicing information
+            for an appliance.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    {% if service_record %}
+                        Save Changes
+                    {% else %}
+                        Create Service Record
+                    {% endif %}
+                </button>
+
+                {% if service_record %}
+                    <a
+                        href="{% url 'maintenance:service_record_detail' service_record.public_id %}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                {% else %}
+                    <a
+                        href="{% url 'maintenance:service_record_list' %}"
+                        class="button button-secondary"
+                    >
+                        Cancel
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+{% endblock %}

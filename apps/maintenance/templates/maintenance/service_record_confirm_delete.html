@@ -1,0 +1,47 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Delete Service Record
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h1>Delete Service Record</h1>
+
+        <p>
+            Are you sure you want to delete the service record for:
+        </p>
+
+        <p>
+            <strong>
+                {{ service_record.appliance.name }}
+                —
+                {{ service_record.service_date|date:"d F Y" }}
+            </strong>
+        </p>
+
+        <p>
+            This action cannot be undone.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button button-danger"
+                >
+                    Confirm Delete
+                </button>
+
+                <a
+                    href="{% url 'maintenance:service_record_detail' service_record.public_id %}"
+                    class="button button-secondary"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
