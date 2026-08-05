@@ -1,4 +1,5 @@
 {% extends "properties/base.html" %}
+{% load qr_tags %}
 
 {% block title %}
     {{ property.name }}
@@ -27,9 +28,13 @@
             <strong>Status:</strong>
 
             {% if property.is_active %}
-                <span class="status-active">Active</span>
+                <span class="status-active">
+                    Active
+                </span>
             {% else %}
-                <span class="status-inactive">Inactive</span>
+                <span class="status-inactive">
+                    Inactive
+                </span>
             {% endif %}
         </p>
 
@@ -131,6 +136,7 @@
 
                         <p>
                             <strong>Room:</strong>
+
                             {% if appliance.room %}
                                 {{ appliance.room.name }}
                             {% else %}
@@ -175,11 +181,68 @@
         {% endif %}
     </div>
 
+    {% url 'properties:property_detail' property.public_id as property_qr_path %}
+    {% qr_code_data_uri request property_qr_path as property_qr_code %}
+
     <div class="card">
         <h2>Master Property QR Code</h2>
 
         <p>
-            QR-code generation will be implemented during Sprint 8.
+            Scan this QR code to open this property's record and view
+            its rooms and appliances.
         </p>
+
+        {% if property_qr_code %}
+            <div style="text-align: center;">
+                <img
+                    src="{{ property_qr_code }}"
+                    alt="QR code for {{ property.name }}"
+                    style="
+                        width: 260px;
+                        max-width: 100%;
+                        height: auto;
+                        padding: 12px;
+                        border: 1px solid #d1d5db;
+                        border-radius: 8px;
+                        background-color: white;
+                    "
+                >
+
+                <p>
+                    <strong>Property:</strong>
+                    {{ property.name }}
+                </p>
+
+                <p>
+                    <strong>Reference:</strong>
+                    {{ property.public_id }}
+                </p>
+
+                <div
+                    class="actions"
+                    style="justify-content: center;"
+                >
+                    <a
+                        href="{{ property_qr_code }}"
+                        download="property-{{ property.public_id }}-qr.png"
+                        class="button"
+                    >
+                        Download QR Code
+                    </a>
+
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        onclick="window.print()"
+                    >
+                        Print Page
+                    </button>
+                </div>
+            </div>
+        {% else %}
+            <p>
+                The property QR code could not be generated.
+            </p>
+        {% endif %}
     </div>
 {% endblock %}

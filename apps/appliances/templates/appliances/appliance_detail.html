@@ -1,4 +1,5 @@
 {% extends "properties/base.html" %}
+{% load qr_tags %}
 
 {% block title %}
     {{ appliance.name }}
@@ -15,6 +16,7 @@
 
         <p>
             <strong>Room:</strong>
+
             {% if appliance.room %}
                 {{ appliance.room.name }}
             {% else %}
@@ -44,6 +46,7 @@
 
         <p>
             <strong>Purchase date:</strong>
+
             {% if appliance.purchase_date %}
                 {{ appliance.purchase_date|date:"d F Y" }}
             {% else %}
@@ -53,6 +56,7 @@
 
         <p>
             <strong>Installation date:</strong>
+
             {% if appliance.installation_date %}
                 {{ appliance.installation_date|date:"d F Y" }}
             {% else %}
@@ -67,6 +71,7 @@
 
         <p>
             <strong>Individual QR enabled:</strong>
+
             {% if appliance.has_individual_qr %}
                 Yes
             {% else %}
@@ -179,14 +184,81 @@
         <h2>Appliance QR Code</h2>
 
         {% if appliance.has_individual_qr %}
+            {% url 'appliances:appliance_detail' appliance.public_id as appliance_qr_path %}
+            {% qr_code_data_uri request appliance_qr_path as appliance_qr_code %}
+
             <p>
-                QR-code generation will be implemented during the
-                QR-code development stage.
+                Scan this QR code to open this appliance record directly.
             </p>
+
+            {% if appliance_qr_code %}
+                <div style="text-align: center;">
+                    <img
+                        src="{{ appliance_qr_code }}"
+                        alt="QR code for {{ appliance.name }}"
+                        style="
+                            width: 260px;
+                            max-width: 100%;
+                            height: auto;
+                            padding: 12px;
+                            border: 1px solid #d1d5db;
+                            border-radius: 8px;
+                            background-color: white;
+                        "
+                    >
+
+                    <p>
+                        <strong>Appliance:</strong>
+                        {{ appliance.name }}
+                    </p>
+
+                    <p>
+                        <strong>Reference:</strong>
+                        {{ appliance.public_id }}
+                    </p>
+
+                    <div
+                        class="actions"
+                        style="justify-content: center;"
+                    >
+                        <a
+                            href="{{ appliance_qr_code }}"
+                            download="appliance-{{ appliance.public_id }}-qr.png"
+                            class="button"
+                        >
+                            Download QR Code
+                        </a>
+
+                        <button
+                            type="button"
+                            class="button button-secondary"
+                            onclick="window.print()"
+                        >
+                            Print Page
+                        </button>
+                    </div>
+                </div>
+            {% else %}
+                <p>
+                    The appliance QR code could not be generated.
+                </p>
+            {% endif %}
         {% else %}
             <p>
-                This appliance uses the master property QR workflow.
+                This appliance uses the master property QR code.
             </p>
+
+            <p>
+                Enable <strong>Has individual QR</strong> while editing
+                this appliance to generate a dedicated appliance QR code.
+            </p>
+
+            <a
+                href="{% url 'properties:property_detail' property.public_id %}"
+                class="button button-secondary"
+            >
+                View Property QR Code
+            </a>
         {% endif %}
     </div>
 {% endblock %}
