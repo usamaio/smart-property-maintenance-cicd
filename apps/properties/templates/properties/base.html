@@ -348,6 +348,43 @@
                 text-align: left;
             }
         }
+        .qr-container {
+    text-align: center;
+}
+
+.qr-image {
+    width: 260px;
+    max-width: 100%;
+    height: auto;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background-color: white;
+}
+
+.qr-reference {
+    margin-top: 14px;
+}
+
+.qr-container .actions {
+    justify-content: center;
+}
+
+@media print {
+    header,
+    footer,
+    .qr-container .actions {
+        display: none;
+    }
+
+    body {
+        background-color: white;
+    }
+
+    .card {
+        box-shadow: none;
+    }
+}
     </style>
 </head>
 

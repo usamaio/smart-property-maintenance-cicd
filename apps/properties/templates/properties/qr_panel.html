@@ -1,0 +1,49 @@
+{% load qr_tags %}
+
+{% qr_code_data_uri qr_target_url as generated_qr_code %}
+
+<div class="card">
+    <h2>{{ qr_title }}</h2>
+
+    <p>
+        Scan this code to open the associated record in the
+        Smart Property Maintenance Platform.
+    </p>
+
+    {% if generated_qr_code %}
+        <div class="qr-container">
+            <img
+                src="{{ generated_qr_code }}"
+                alt="{{ qr_title }}"
+                class="qr-image"
+            >
+
+            <p class="qr-reference">
+                <strong>Record:</strong>
+                {{ qr_record_name }}
+            </p>
+
+            <div class="actions">
+                <a
+                    href="{{ generated_qr_code }}"
+                    download="{{ qr_download_name }}"
+                    class="button"
+                >
+                    Download QR Code
+                </a>
+
+                <button
+                    type="button"
+                    class="button button-secondary"
+                    onclick="window.print()"
+                >
+                    Print
+                </button>
+            </div>
+        </div>
+    {% else %}
+        <p>
+            The QR code could not be generated.
+        </p>
+    {% endif %}
+</div>
