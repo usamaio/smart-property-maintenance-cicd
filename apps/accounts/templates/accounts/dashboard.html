@@ -1,0 +1,296 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block content %}
+    <div class="dashboard-heading">
+        <div>
+            <h1>Dashboard</h1>
+
+            <p>
+                Overview of your property maintenance information.
+            </p>
+        </div>
+
+        <div class="actions">
+            <a
+                href="{% url 'properties:property_create' %}"
+                class="button"
+            >
+                Add Property
+            </a>
+
+            <a
+                href="{% url 'maintenance:maintenance_request_create' %}"
+                class="button"
+            >
+                Add Maintenance Request
+            </a>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <a
+            href="{% url 'properties:property_list' %}"
+            class="dashboard-card"
+        >
+            <span class="dashboard-label">
+                Properties
+            </span>
+
+            <strong class="dashboard-number">
+                {{ property_count }}
+            </strong>
+        </a>
+
+        <a
+            href="{% url 'properties:property_list' %}"
+            class="dashboard-card"
+        >
+            <span class="dashboard-label">
+                Rooms
+            </span>
+
+            <strong class="dashboard-number">
+                {{ room_count }}
+            </strong>
+        </a>
+
+        <a
+            href="{% url 'properties:property_list' %}"
+            class="dashboard-card"
+        >
+            <span class="dashboard-label">
+                Appliances
+            </span>
+
+            <strong class="dashboard-number">
+                {{ appliance_count }}
+            </strong>
+        </a>
+
+        <div class="dashboard-card">
+            <span class="dashboard-label">
+                Active Warranties
+            </span>
+
+            <strong class="dashboard-number">
+                {{ active_warranty_count }}
+            </strong>
+        </div>
+
+        <a
+            href="{% url 'maintenance:maintenance_request_list' %}"
+            class="dashboard-card"
+        >
+            <span class="dashboard-label">
+                Open Requests
+            </span>
+
+            <strong class="dashboard-number">
+                {{ open_request_count }}
+            </strong>
+        </a>
+
+        <a
+            href="{% url 'maintenance:maintenance_request_list' %}?priority=urgent"
+            class="dashboard-card {% if urgent_request_count %}dashboard-warning{% endif %}"
+        >
+            <span class="dashboard-label">
+                Urgent Requests
+            </span>
+
+            <strong class="dashboard-number">
+                {{ urgent_request_count }}
+            </strong>
+        </a>
+
+        <a
+            href="{% url 'maintenance:service_record_list' %}"
+            class="dashboard-card"
+        >
+            <span class="dashboard-label">
+                Service Records
+            </span>
+
+            <strong class="dashboard-number">
+                {{ service_record_count }}
+            </strong>
+        </a>
+
+        <a
+            href="{% url 'maintenance:maintenance_schedule_list' %}?status=overdue"
+            class="dashboard-card {% if overdue_schedule_count %}dashboard-danger{% endif %}"
+        >
+            <span class="dashboard-label">
+                Overdue Schedules
+            </span>
+
+            <strong class="dashboard-number">
+                {{ overdue_schedule_count }}
+            </strong>
+        </a>
+    </div>
+
+    <div class="dashboard-sections">
+        <section class="card">
+            <div class="section-heading">
+                <h2>Recent Maintenance Requests</h2>
+
+                <a
+                    href="{% url 'maintenance:maintenance_request_list' %}"
+                >
+                    View all
+                </a>
+            </div>
+
+            {% if recent_requests %}
+                {% for maintenance_request in recent_requests %}
+                    <div class="dashboard-list-item">
+                        <div>
+                            <a
+                                href="{% url 'maintenance:maintenance_request_detail' maintenance_request.public_id %}"
+                            >
+                                <strong>
+                                    {{ maintenance_request.title }}
+                                </strong>
+                            </a>
+
+                            <p>
+                                {{ maintenance_request.property.name }}
+                            </p>
+                        </div>
+
+                        <div class="dashboard-item-meta">
+                            {{ maintenance_request.get_priority_display }}
+                            ·
+                            {{ maintenance_request.get_status_display }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>
+                    No maintenance requests have been created.
+                </p>
+            {% endif %}
+        </section>
+
+        <section class="card">
+            <div class="section-heading">
+                <h2>Upcoming Maintenance</h2>
+
+                <a
+                    href="{% url 'maintenance:maintenance_schedule_list' %}"
+                >
+                    View all
+                </a>
+            </div>
+
+            {% if upcoming_schedules %}
+                {% for schedule in upcoming_schedules %}
+                    <div class="dashboard-list-item">
+                        <div>
+                            <a
+                                href="{% url 'maintenance:maintenance_schedule_detail' schedule.public_id %}"
+                            >
+                                <strong>
+                                    {{ schedule.task_name }}
+                                </strong>
+                            </a>
+
+                            <p>
+                                {{ schedule.property.name }}
+                            </p>
+                        </div>
+
+                        <div class="dashboard-item-meta">
+                            {{ schedule.next_due_date|date:"d M Y" }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>
+                    No maintenance schedules are due within 30 days.
+                </p>
+            {% endif %}
+        </section>
+    </div>
+
+    <section class="card">
+        <div class="section-heading">
+            <h2>Recent Service Records</h2>
+
+            <a
+                href="{% url 'maintenance:service_record_list' %}"
+            >
+                View all
+            </a>
+        </div>
+
+        {% if recent_service_records %}
+            {% for record in recent_service_records %}
+                <div class="dashboard-list-item">
+                    <div>
+                        <a
+                            href="{% url 'maintenance:service_record_detail' record.public_id %}"
+                        >
+                            <strong>
+                                {{ record.appliance.name }}
+                            </strong>
+                        </a>
+
+                        <p>
+                            {{ record.service_provider }}
+                            —
+                            {{ record.appliance.property.name }}
+                        </p>
+                    </div>
+
+                    <div class="dashboard-item-meta">
+                        {{ record.service_date|date:"d M Y" }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>
+                No service records have been created.
+            </p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2>Quick Actions</h2>
+
+        <div class="actions">
+            <a
+                href="{% url 'properties:property_create' %}"
+                class="button"
+            >
+                Add Property
+            </a>
+
+            <a
+                href="{% url 'maintenance:maintenance_request_create' %}"
+                class="button"
+            >
+                Add Maintenance Request
+            </a>
+
+            <a
+                href="{% url 'maintenance:service_record_create' %}"
+                class="button"
+            >
+                Add Service Record
+            </a>
+
+            <a
+                href="{% url 'maintenance:maintenance_schedule_create' %}"
+                class="button"
+            >
+                Add Maintenance Schedule
+            </a>
+        </div>
+    </section>
+{% endblock %}
