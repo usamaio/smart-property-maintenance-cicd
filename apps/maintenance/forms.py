@@ -12,7 +12,6 @@ from .models import (
 
 DATE_FORMAT = '%d/%m/%Y'
 ISO_DATE_FORMAT = '%Y-%m-%d'
-DATE_PLACEHOLDER = 'DD/MM/YYYY'
 
 ACCEPTED_DATE_FORMATS = [
     DATE_FORMAT,
@@ -47,9 +46,9 @@ class MaintenanceRequestForm(forms.ModelForm):
                 }
             ),
             'target_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
             'resolution_notes': forms.Textarea(
@@ -196,15 +195,15 @@ class ServiceRecordForm(forms.ModelForm):
 
         widgets = {
             'service_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
             'next_service_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
             'work_performed': forms.Textarea(
@@ -386,15 +385,15 @@ class MaintenanceScheduleForm(forms.ModelForm):
                 }
             ),
             'next_due_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
             'last_completed_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
         }

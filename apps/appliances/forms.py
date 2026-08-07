@@ -7,7 +7,6 @@ from .models import Appliance, Warranty
 
 DATE_FORMAT = '%d/%m/%Y'
 ISO_DATE_FORMAT = '%Y-%m-%d'
-DATE_PLACEHOLDER = 'DD/MM/YYYY'
 
 ACCEPTED_DATE_FORMATS = [
     DATE_FORMAT,
@@ -36,21 +35,21 @@ class ApplianceForm(forms.ModelForm):
 
         widgets = {
             'purchase_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
             'installation_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
             'warranty_expiry_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
             'notes': forms.Textarea(
@@ -146,15 +145,15 @@ class WarrantyForm(forms.ModelForm):
 
         widgets = {
             'start_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
             'expiry_date': forms.DateInput(
-                format=DATE_FORMAT,
+                format=ISO_DATE_FORMAT,
                 attrs={
-                    'placeholder': DATE_PLACEHOLDER,
+                    'type': 'date',
                 }
             ),
             'notes': forms.Textarea(
