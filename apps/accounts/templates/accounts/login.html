@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-    <title>Login | Smart Property Maintenance Platform</title>
+
+    <title>
+        Login | Smart Property Maintenance Platform
+    </title>
 
     <style>
         * {
@@ -61,6 +65,12 @@
             border: 1px solid #cccccc;
             border-radius: 7px;
             font-size: 16px;
+            background-color: #ffffff;
+        }
+
+        input:focus {
+            outline: 2px solid #2563eb;
+            border-color: #2563eb;
         }
 
         button {
@@ -75,7 +85,11 @@
             color: #ffffff;
         }
 
-        .error-message {
+        button:hover {
+            background: #111827;
+        }
+
+        .message {
             margin-bottom: 18px;
             padding: 12px;
             border-radius: 7px;
@@ -93,10 +107,12 @@
             Sign in to the Smart Property Maintenance Platform.
         </p>
 
-        {% if form.errors %}
-            <div class="error-message">
-                The username or password is incorrect.
-            </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message">
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% endif %}
 
         <form method="post">
@@ -111,19 +127,32 @@
             {% endif %}
 
             <div class="field">
-                <label for="{{ form.username.id_for_label }}">
+                <label for="username">
                     Username
                 </label>
 
-                {{ form.username }}
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    autocomplete="username"
+                    required
+                    autofocus
+                >
             </div>
 
             <div class="field">
-                <label for="{{ form.password.id_for_label }}">
+                <label for="password">
                     Password
                 </label>
 
-                {{ form.password }}
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="current-password"
+                    required
+                >
             </div>
 
             <button type="submit">
