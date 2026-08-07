@@ -12,6 +12,11 @@
         {% block title %}Smart Property Maintenance{% endblock %}
     </title>
 
+    <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    >
+
     <style>
         * {
             box-sizing: border-box;
@@ -461,5 +466,18 @@
     <footer>
         Smart Property Maintenance Platform
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            flatpickr('.uk-date-picker', {
+                dateFormat: 'd/m/Y',
+                allowInput: true,
+            });
+        });
+    </script>
+</body>
+</html>
 </body>
 </html>

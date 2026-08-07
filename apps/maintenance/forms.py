@@ -46,9 +46,11 @@ class MaintenanceRequestForm(forms.ModelForm):
                 }
             ),
             'target_date': forms.DateInput(
-                format=ISO_DATE_FORMAT,
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'class': 'uk-date-picker',
+                    'placeholder': 'DD/MM/YYYY',
+                    'autocomplete': 'off',
                 }
             ),
             'resolution_notes': forms.Textarea(
@@ -195,15 +197,19 @@ class ServiceRecordForm(forms.ModelForm):
 
         widgets = {
             'service_date': forms.DateInput(
-                format=ISO_DATE_FORMAT,
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'class': 'uk-date-picker',
+                    'placeholder': 'DD/MM/YYYY',
+                    'autocomplete': 'off',
                 }
             ),
             'next_service_date': forms.DateInput(
-                format=ISO_DATE_FORMAT,
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'class': 'uk-date-picker',
+                    'placeholder': 'DD/MM/YYYY',
+                    'autocomplete': 'off',
                 }
             ),
             'work_performed': forms.Textarea(
@@ -385,15 +391,19 @@ class MaintenanceScheduleForm(forms.ModelForm):
                 }
             ),
             'next_due_date': forms.DateInput(
-                format=ISO_DATE_FORMAT,
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'class': 'uk-date-picker',
+                    'placeholder': 'DD/MM/YYYY',
+                    'autocomplete': 'off',
                 }
             ),
             'last_completed_date': forms.DateInput(
-                format=ISO_DATE_FORMAT,
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'class': 'uk-date-picker',
+                    'placeholder': 'DD/MM/YYYY',
+                    'autocomplete': 'off',
                 }
             ),
         }
