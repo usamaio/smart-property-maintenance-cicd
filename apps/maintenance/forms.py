@@ -10,6 +10,16 @@ from .models import (
 )
 
 
+DATE_FORMAT = '%d/%m/%Y'
+ISO_DATE_FORMAT = '%Y-%m-%d'
+DATE_PLACEHOLDER = 'DD/MM/YYYY'
+
+ACCEPTED_DATE_FORMATS = [
+    DATE_FORMAT,
+    ISO_DATE_FORMAT,
+]
+
+
 class MaintenanceRequestForm(forms.ModelForm):
     class Meta:
         model = MaintenanceRequest
@@ -37,8 +47,9 @@ class MaintenanceRequestForm(forms.ModelForm):
                 }
             ),
             'target_date': forms.DateInput(
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'placeholder': DATE_PLACEHOLDER,
                 }
             ),
             'resolution_notes': forms.Textarea(
@@ -56,6 +67,10 @@ class MaintenanceRequestForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.user = user
+
+        self.fields['target_date'].input_formats = (
+            ACCEPTED_DATE_FORMATS
+        )
 
         if user is not None:
             self.fields['property'].queryset = Property.objects.filter(
@@ -108,7 +123,9 @@ class MaintenanceRequestForm(forms.ModelForm):
         room = cleaned_data.get('room')
         appliance = cleaned_data.get('appliance')
         status = cleaned_data.get('status')
-        resolution_notes = cleaned_data.get('resolution_notes')
+        resolution_notes = cleaned_data.get(
+            'resolution_notes'
+        )
 
         if (
             property_obj
@@ -179,13 +196,15 @@ class ServiceRecordForm(forms.ModelForm):
 
         widgets = {
             'service_date': forms.DateInput(
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'placeholder': DATE_PLACEHOLDER,
                 }
             ),
             'next_service_date': forms.DateInput(
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'placeholder': DATE_PLACEHOLDER,
                 }
             ),
             'work_performed': forms.Textarea(
@@ -222,6 +241,14 @@ class ServiceRecordForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.user = user
+
+        self.fields['service_date'].input_formats = (
+            ACCEPTED_DATE_FORMATS
+        )
+
+        self.fields['next_service_date'].input_formats = (
+            ACCEPTED_DATE_FORMATS
+        )
 
         if user is not None:
             self.fields['appliance'].queryset = Appliance.objects.filter(
@@ -274,9 +301,13 @@ class ServiceRecordForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         appliance = cleaned_data.get('appliance')
-        maintenance_request = cleaned_data.get('maintenance_request')
+        maintenance_request = cleaned_data.get(
+            'maintenance_request'
+        )
         service_date = cleaned_data.get('service_date')
-        next_service_date = cleaned_data.get('next_service_date')
+        next_service_date = cleaned_data.get(
+            'next_service_date'
+        )
         cost = cleaned_data.get('cost')
 
         if (
@@ -355,13 +386,15 @@ class MaintenanceScheduleForm(forms.ModelForm):
                 }
             ),
             'next_due_date': forms.DateInput(
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'placeholder': DATE_PLACEHOLDER,
                 }
             ),
             'last_completed_date': forms.DateInput(
+                format=DATE_FORMAT,
                 attrs={
-                    'type': 'date',
+                    'placeholder': DATE_PLACEHOLDER,
                 }
             ),
         }
@@ -370,6 +403,14 @@ class MaintenanceScheduleForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.user = user
+
+        self.fields['next_due_date'].input_formats = (
+            ACCEPTED_DATE_FORMATS
+        )
+
+        self.fields['last_completed_date'].input_formats = (
+            ACCEPTED_DATE_FORMATS
+        )
 
         if user is not None:
             self.fields['property'].queryset = Property.objects.filter(

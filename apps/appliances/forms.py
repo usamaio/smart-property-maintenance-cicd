@@ -5,6 +5,16 @@ from apps.properties.models import Room
 from .models import Appliance, Warranty
 
 
+DATE_FORMAT = '%d/%m/%Y'
+ISO_DATE_FORMAT = '%Y-%m-%d'
+DATE_PLACEHOLDER = 'DD/MM/YYYY'
+
+ACCEPTED_DATE_FORMATS = [
+    DATE_FORMAT,
+    ISO_DATE_FORMAT,
+]
+
+
 class ApplianceForm(forms.ModelForm):
     class Meta:
         model = Appliance
@@ -26,13 +36,22 @@ class ApplianceForm(forms.ModelForm):
 
         widgets = {
             'purchase_date': forms.DateInput(
-                attrs={'type': 'date'}
+                format=DATE_FORMAT,
+                attrs={
+                    'placeholder': DATE_PLACEHOLDER,
+                }
             ),
             'installation_date': forms.DateInput(
-                attrs={'type': 'date'}
+                format=DATE_FORMAT,
+                attrs={
+                    'placeholder': DATE_PLACEHOLDER,
+                }
             ),
             'warranty_expiry_date': forms.DateInput(
-                attrs={'type': 'date'}
+                format=DATE_FORMAT,
+                attrs={
+                    'placeholder': DATE_PLACEHOLDER,
+                }
             ),
             'notes': forms.Textarea(
                 attrs={
@@ -46,6 +65,15 @@ class ApplianceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.property_obj = property_obj
+
+        for field_name in [
+            'purchase_date',
+            'installation_date',
+            'warranty_expiry_date',
+        ]:
+            self.fields[field_name].input_formats = (
+                ACCEPTED_DATE_FORMATS
+            )
 
         if property_obj is not None:
             self.fields['room'].queryset = Room.objects.filter(
@@ -118,10 +146,16 @@ class WarrantyForm(forms.ModelForm):
 
         widgets = {
             'start_date': forms.DateInput(
-                attrs={'type': 'date'}
+                format=DATE_FORMAT,
+                attrs={
+                    'placeholder': DATE_PLACEHOLDER,
+                }
             ),
             'expiry_date': forms.DateInput(
-                attrs={'type': 'date'}
+                format=DATE_FORMAT,
+                attrs={
+                    'placeholder': DATE_PLACEHOLDER,
+                }
             ),
             'notes': forms.Textarea(
                 attrs={
@@ -131,12 +165,26 @@ class WarrantyForm(forms.ModelForm):
             ),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['start_date'].input_formats = (
+            ACCEPTED_DATE_FORMATS
+        )
+
+        self.fields['expiry_date'].input_formats = (
+            ACCEPTED_DATE_FORMATS
+        )
+
     def clean_provider(self):
         provider = self.cleaned_data['provider']
         return provider.strip()
 
     def clean_policy_number(self):
-        policy_number = self.cleaned_data.get('policy_number', '')
+        policy_number = self.cleaned_data.get(
+            'policy_number',
+            '',
+        )
         return policy_number.strip()
 
     def clean(self):
@@ -156,4 +204,3 @@ class WarrantyForm(forms.ModelForm):
             )
 
         return cleaned_data
-    
