@@ -13,8 +13,8 @@
     </title>
 
     <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
     >
 
     <style>
@@ -30,9 +30,13 @@
         }
 
         header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
             background-color: #1f2937;
             color: white;
             padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
         }
 
         nav {
@@ -61,7 +65,12 @@
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 14px;
+            gap: 10px;
+        }
+
+        .nav-separator {
+            color: #9ca3af;
+            user-select: none;
         }
 
         nav a {
@@ -353,43 +362,44 @@
                 text-align: left;
             }
         }
+
         .qr-container {
-    text-align: center;
-}
+            text-align: center;
+        }
 
-.qr-image {
-    width: 260px;
-    max-width: 100%;
-    height: auto;
-    padding: 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background-color: white;
-}
+        .qr-image {
+            width: 260px;
+            max-width: 100%;
+            height: auto;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: white;
+        }
 
-.qr-reference {
-    margin-top: 14px;
-}
+        .qr-reference {
+            margin-top: 14px;
+        }
 
-.qr-container .actions {
-    justify-content: center;
-}
+        .qr-container .actions {
+            justify-content: center;
+        }
 
-@media print {
-    header,
-    footer,
-    .qr-container .actions {
-        display: none;
-    }
+        @media print {
+            header,
+            footer,
+            .qr-container .actions {
+                display: none;
+            }
 
-    body {
-        background-color: white;
-    }
+            body {
+                background-color: white;
+            }
 
-    .card {
-        box-shadow: none;
-    }
-}
+            .card {
+                box-shadow: none;
+            }
+        }
     </style>
 </head>
 
@@ -409,27 +419,39 @@
                         Properties
                     </a>
 
+                    <span class="nav-separator">|</span>
+
                     <a href="{% url 'maintenance:maintenance_request_list' %}">
                         Maintenance Requests
                     </a>
 
+                    <span class="nav-separator">|</span>
+
                     <a href="{% url 'maintenance:service_record_list' %}">
                         Service Records
                     </a>
+
+                    <span class="nav-separator">|</span>
 
                     <a href="{% url 'maintenance:maintenance_schedule_list' %}">
                         Maintenance Schedules
                     </a>
 
                     {% if user.is_staff %}
+                        <span class="nav-separator">|</span>
+
                         <a href="/admin/">
                             Admin
                         </a>
                     {% endif %}
 
+                    <span class="nav-separator">|</span>
+
                     <span>
                         {{ user.username }}
                     </span>
+
+                    <span class="nav-separator">|</span>
 
                     <form
                         method="post"
@@ -477,7 +499,5 @@
             });
         });
     </script>
-</body>
-</html>
 </body>
 </html>
