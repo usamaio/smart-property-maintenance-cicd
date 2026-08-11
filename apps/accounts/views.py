@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -13,6 +13,9 @@ from apps.maintenance.models import (
 from apps.properties.models import Property, Room
 
 
+User = get_user_model()
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('accounts:dashboard')
@@ -21,11 +24,18 @@ def login_view(request):
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
 
-        user = authenticate(
-            request,
-            username=username,
-            password=password,
-        )
+        matched_user = User.objects.filter(
+            username__iexact=username,
+        ).first()
+
+        if matched_user is not None:
+            user = authenticate(
+                request,
+                username=matched_user.username,
+                password=password,
+            )
+        else:
+            user = None
 
         if user is not None:
             login(request, user)
