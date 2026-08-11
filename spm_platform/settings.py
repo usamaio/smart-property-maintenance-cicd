@@ -31,9 +31,7 @@ ALLOWED_HOSTS = [
     'localhost',
 ]
 
-render_hostname = os.environ.get(
-    'RENDER_EXTERNAL_HOSTNAME'
-)
+render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 
 if render_hostname:
     ALLOWED_HOSTS.append(render_hostname)
@@ -43,20 +41,15 @@ if render_hostname:
 
 CSRF_TRUSTED_ORIGINS = []
 
-render_external_url = os.environ.get(
-    'RENDER_EXTERNAL_URL'
-)
+render_external_url = os.environ.get('RENDER_EXTERNAL_URL')
 
 if render_external_url:
-    CSRF_TRUSTED_ORIGINS.append(
-        render_external_url
-    )
+    CSRF_TRUSTED_ORIGINS.append(render_external_url)
 
 
 # Applications
 
 INSTALLED_APPS = [
-    # Jazzmin must appear before django.contrib.admin
     'jazzmin',
 
     'django.contrib.admin',
@@ -94,24 +87,20 @@ ROOT_URLCONF = 'spm_platform.urls'
 TEMPLATES = [
     {
         'BACKEND': (
-            'django.template.backends.django.'
-            'DjangoTemplates'
+            'django.template.backends.django.DjangoTemplates'
         ),
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 (
-                    'django.template.context_processors.'
-                    'request'
+                    'django.template.context_processors.request'
                 ),
                 (
-                    'django.contrib.auth.context_processors.'
-                    'auth'
+                    'django.contrib.auth.context_processors.auth'
                 ),
                 (
-                    'django.contrib.messages.context_processors.'
-                    'messages'
+                    'django.contrib.messages.context_processors.messages'
                 ),
             ],
         },
@@ -131,9 +120,7 @@ WSGI_APPLICATION = 'spm_platform.wsgi.application'
 # PostgreSQL is used through the DATABASE_URL
 # environment variable.
 
-DATABASE_URL = os.environ.get(
-    'DATABASE_URL'
-)
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
     DATABASES = {
@@ -147,9 +134,7 @@ if DATABASE_URL:
 else:
     DATABASES = {
         'default': {
-            'ENGINE': (
-                'django.db.backends.sqlite3'
-            ),
+            'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
@@ -220,8 +205,7 @@ STATICFILES_DIRS = []
 STORAGES = {
     'default': {
         'BACKEND': (
-            'django.core.files.storage.'
-            'FileSystemStorage'
+            'django.core.files.storage.FileSystemStorage'
         ),
     },
     'staticfiles': {
@@ -235,9 +219,7 @@ STORAGES = {
 
 # Default primary-key type
 
-DEFAULT_AUTO_FIELD = (
-    'django.db.models.BigAutoField'
-)
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Jazzmin administration interface
@@ -246,97 +228,13 @@ JAZZMIN_SETTINGS = {
     'site_title': 'SPM Admin',
     'site_header': 'Smart Property Maintenance',
     'site_brand': 'SPM Administration',
-
     'welcome_sign': (
-        'Welcome to Smart Property Maintenance '
-        'Administration'
+        'Welcome to Smart Property Maintenance Administration'
     ),
-
-    'copyright': (
-        'Smart Property Maintenance Platform'
-    ),
-
-    'search_model': [
-        'accounts.User',
-        'properties.Property',
-        'appliances.Appliance',
-    ],
-
+    'copyright': 'Smart Property Maintenance Platform',
     'show_sidebar': True,
     'navigation_expanded': True,
-
-    'hide_apps': [],
-
-    'hide_models': [],
-
-    'order_with_respect_to': [
-        'accounts',
-        'properties',
-        'appliances',
-        'maintenance',
-        'auth',
-    ],
-
-    'icons': {
-        'accounts': 'fas fa-users',
-        'accounts.User': 'fas fa-user',
-
-        'properties': 'fas fa-building',
-        'properties.Property': 'fas fa-home',
-        'properties.Room': 'fas fa-door-open',
-
-        'appliances': 'fas fa-tools',
-        'appliances.Appliance': 'fas fa-cog',
-        'appliances.Warranty': 'fas fa-file-contract',
-
-        'maintenance': 'fas fa-wrench',
-        'maintenance.MaintenanceRequest': (
-            'fas fa-tools'
-        ),
-        'maintenance.ServiceRecord': (
-            'fas fa-clipboard-check'
-        ),
-        'maintenance.MaintenanceSchedule': (
-            'fas fa-calendar-alt'
-        ),
-
-        'auth': 'fas fa-users-cog',
-        'auth.Group': 'fas fa-users',
-    },
-
     'show_ui_builder': False,
-}
-
-
-JAZZMIN_UI_TWEAKS = {
-    'navbar_small_text': False,
-    'footer_small_text': False,
-    'body_small_text': False,
-    'brand_small_text': False,
-
-    'brand_colour': 'navbar-primary',
-    'accent': 'accent-primary',
-
-    'navbar': 'navbar-dark navbar-primary',
-    'no_navbar_border': False,
-
-    'sidebar': 'sidebar-dark-primary',
-    'sidebar_nav_small_text': False,
-    'sidebar_disable_expand': False,
-    'sidebar_nav_child_indent': True,
-    'sidebar_nav_compact_style': False,
-
-    'theme': 'flatly',
-    'dark_mode_theme': None,
-
-    'button_classes': {
-        'primary': 'btn-primary',
-        'secondary': 'btn-secondary',
-        'info': 'btn-info',
-        'warning': 'btn-warning',
-        'danger': 'btn-danger',
-        'success': 'btn-success',
-    },
 }
 
 
