@@ -81,77 +81,131 @@ def dashboard(request):
     today = timezone.localdate()
     due_soon_date = today + timezone.timedelta(days=30)
 
-    properties = Property.objects.filter(
-        owner=request.user,
-    )
+    if request.user.is_staff:
+        properties = Property.objects.all()
 
-    rooms = Room.objects.filter(
-        property__owner=request.user,
-    )
+        rooms = Room.objects.all()
 
-    appliances = Appliance.objects.filter(
-        property__owner=request.user,
-    )
+        appliances = Appliance.objects.all()
 
-    active_warranties = Warranty.objects.filter(
-        appliance__property__owner=request.user,
-        expiry_date__gte=today,
-    )
+        active_warranties = Warranty.objects.filter(
+            expiry_date__gte=today,
+        )
 
-    open_requests = MaintenanceRequest.objects.filter(
-        property__owner=request.user,
-        status__in=[
-            'open',
-            'in_progress',
-            'on_hold',
-        ],
-    )
+        open_requests = MaintenanceRequest.objects.filter(
+            status__in=[
+                'open',
+                'in_progress',
+                'on_hold',
+            ],
+        )
+
+        service_records = ServiceRecord.objects.all()
+
+        overdue_schedules = MaintenanceSchedule.objects.filter(
+            is_active=True,
+            next_due_date__lt=today,
+        )
+
+        upcoming_schedules = MaintenanceSchedule.objects.filter(
+            is_active=True,
+            next_due_date__gte=today,
+            next_due_date__lte=due_soon_date,
+        ).select_related(
+            'property',
+            'appliance',
+        ).order_by(
+            'next_due_date',
+        )[:5]
+
+        recent_requests = MaintenanceRequest.objects.select_related(
+            'property',
+            'room',
+            'appliance',
+        ).order_by(
+            '-created_at',
+        )[:5]
+
+        recent_service_records = ServiceRecord.objects.select_related(
+            'appliance',
+            'appliance__property',
+        ).order_by(
+            '-service_date',
+            '-created_at',
+        )[:5]
+
+    else:
+        properties = Property.objects.filter(
+            owner=request.user,
+        )
+
+        rooms = Room.objects.filter(
+            property__owner=request.user,
+        )
+
+        appliances = Appliance.objects.filter(
+            property__owner=request.user,
+        )
+
+        active_warranties = Warranty.objects.filter(
+            appliance__property__owner=request.user,
+            expiry_date__gte=today,
+        )
+
+        open_requests = MaintenanceRequest.objects.filter(
+            property__owner=request.user,
+            status__in=[
+                'open',
+                'in_progress',
+                'on_hold',
+            ],
+        )
+
+        service_records = ServiceRecord.objects.filter(
+            appliance__property__owner=request.user,
+        )
+
+        overdue_schedules = MaintenanceSchedule.objects.filter(
+            property__owner=request.user,
+            is_active=True,
+            next_due_date__lt=today,
+        )
+
+        upcoming_schedules = MaintenanceSchedule.objects.filter(
+            property__owner=request.user,
+            is_active=True,
+            next_due_date__gte=today,
+            next_due_date__lte=due_soon_date,
+        ).select_related(
+            'property',
+            'appliance',
+        ).order_by(
+            'next_due_date',
+        )[:5]
+
+        recent_requests = MaintenanceRequest.objects.filter(
+            property__owner=request.user,
+        ).select_related(
+            'property',
+            'room',
+            'appliance',
+        ).order_by(
+            '-created_at',
+        )[:5]
+
+        recent_service_records = ServiceRecord.objects.filter(
+            appliance__property__owner=request.user,
+        ).select_related(
+            'appliance',
+            'appliance__property',
+        ).order_by(
+            '-service_date',
+            '-created_at',
+        )[:5]
 
     urgent_requests = open_requests.filter(
         priority='urgent',
     )
-
-    service_records = ServiceRecord.objects.filter(
-        appliance__property__owner=request.user,
-    )
-
-    overdue_schedules = MaintenanceSchedule.objects.filter(
-        property__owner=request.user,
-        is_active=True,
-        next_due_date__lt=today,
-    )
-
-    upcoming_schedules = MaintenanceSchedule.objects.filter(
-        property__owner=request.user,
-        is_active=True,
-        next_due_date__gte=today,
-        next_due_date__lte=due_soon_date,
-    ).select_related(
-        'property',
-        'appliance',
-    ).order_by(
-        'next_due_date',
-    )[:5]
-
-    recent_requests = MaintenanceRequest.objects.filter(
-        property__owner=request.user,
-    ).select_related(
-        'property',
-        'room',
-        'appliance',
-    ).order_by(
-        '-created_at',
-    )[:5]
-
-    recent_service_records = ServiceRecord.objects.filter(
-        appliance__property__owner=request.user,
-    ).select_related(
-        'appliance',
-        'appliance__property',
-    ).order_by(
-        '-service_date',
-        '-created_at',
-    )[:5]
 
     context = {
         'property_count': properties.count(),
