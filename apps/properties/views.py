@@ -6,9 +6,35 @@ from .forms import PropertyForm, RoomForm
 from .models import Property, Room
 
 
+def get_accessible_properties(user):
+    """
+    Administrators can access all properties.
+    Standard users can access only their own properties.
+    """
+    if user.is_staff:
+        return Property.objects.all()
+
+    return Property.objects.filter(owner=user)
+
+
+def get_accessible_rooms(user):
+    """
+    Administrators can access all rooms.
+    Standard users can access rooms belonging to their properties.
+    """
+    if user.is_staff:
+        return Room.objects.all()
+
+    return Room.objects.filter(
+        property__owner=user
+    )
+
+
 @login_required
 def property_list(request):
-    properties = Property.objects.filter(owner=request.user)
+    properties = get_accessible_properties(
+        request.user
+    )
 
     context = {
         'properties': properties,
@@ -24,9 +50,8 @@ def property_list(request):
 @login_required
 def property_detail(request, public_id):
     property_obj = get_object_or_404(
-        Property,
-        public_id=public_id,
-        owner=request.user
+        get_accessible_properties(request.user),
+        public_id=public_id
     )
 
     rooms = property_obj.rooms.all()
@@ -49,7 +74,10 @@ def property_create(request):
         form = PropertyForm(request.POST)
 
         if form.is_valid():
-            property_obj = form.save(commit=False)
+            property_obj = form.save(
+                commit=False
+            )
+
             property_obj.owner = request.user
             property_obj.save()
 
@@ -62,6 +90,7 @@ def property_create(request):
                 'properties:property_detail',
                 public_id=property_obj.public_id
             )
+
     else:
         form = PropertyForm()
 
@@ -79,9 +108,8 @@ def property_create(request):
 @login_required
 def property_update(request, public_id):
     property_obj = get_object_or_404(
-        Property,
-        public_id=public_id,
-        owner=request.user
+        get_accessible_properties(request.user),
+        public_id=public_id
     )
 
     if request.method == 'POST':
@@ -102,8 +130,11 @@ def property_update(request, public_id):
                 'properties:property_detail',
                 public_id=property_obj.public_id
             )
+
     else:
-        form = PropertyForm(instance=property_obj)
+        form = PropertyForm(
+            instance=property_obj
+        )
 
     context = {
         'form': form,
@@ -120,9 +151,8 @@ def property_update(request, public_id):
 @login_required
 def property_delete(request, public_id):
     property_obj = get_object_or_404(
-        Property,
-        public_id=public_id,
-        owner=request.user
+        get_accessible_properties(request.user),
+        public_id=public_id
     )
 
     if request.method == 'POST':
@@ -133,7 +163,9 @@ def property_delete(request, public_id):
             'Property deleted successfully.'
         )
 
-        return redirect('properties:property_list')
+        return redirect(
+            'properties:property_list'
+        )
 
     context = {
         'property': property_obj,
@@ -147,18 +179,23 @@ def property_delete(request, public_id):
 
 
 @login_required
-def room_create(request, property_public_id):
+def room_create(
+    request,
+    property_public_id
+):
     property_obj = get_object_or_404(
-        Property,
-        public_id=property_public_id,
-        owner=request.user
+        get_accessible_properties(request.user),
+        public_id=property_public_id
     )
 
     if request.method == 'POST':
         form = RoomForm(request.POST)
 
         if form.is_valid():
-            room = form.save(commit=False)
+            room = form.save(
+                commit=False
+            )
+
             room.property = property_obj
             room.save()
 
@@ -171,6 +208,7 @@ def room_create(request, property_public_id):
                 'properties:property_detail',
                 public_id=property_obj.public_id
             )
+
     else:
         form = RoomForm()
 
@@ -187,11 +225,13 @@ def room_create(request, property_public_id):
 
 
 @login_required
-def room_update(request, room_public_id):
+def room_update(
+    request,
+    room_public_id
+):
     room = get_object_or_404(
-        Room,
-        public_id=room_public_id,
-        property__owner=request.user
+        get_accessible_rooms(request.user),
+        public_id=room_public_id
     )
 
     if request.method == 'POST':
@@ -212,8 +252,11 @@ def room_update(request, room_public_id):
                 'properties:property_detail',
                 public_id=room.property.public_id
             )
+
     else:
-        form = RoomForm(instance=room)
+        form = RoomForm(
+            instance=room
+        )
 
     context = {
         'form': form,
@@ -229,14 +272,18 @@ def room_update(request, room_public_id):
 
 
 @login_required
-def room_delete(request, room_public_id):
+def room_delete(
+    request,
+    room_public_id
+):
     room = get_object_or_404(
-        Room,
-        public_id=room_public_id,
-        property__owner=request.user
+        get_accessible_rooms(request.user),
+        public_id=room_public_id
     )
 
-    property_public_id = room.property.public_id
+    property_public_id = (
+        room.property.public_id
+    )
 
     if request.method == 'POST':
         room.delete()
