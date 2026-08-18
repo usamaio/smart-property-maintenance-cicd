@@ -1,0 +1,41 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Property QR
+{% endblock %}
+
+{% block content %}
+    <div class="card qr-container">
+        <h1>Smart Property Maintenance</h1>
+
+        <h2>Property QR Code</h2>
+
+        <p>
+            This QR code is linked to a registered property.
+        </p>
+
+        <p>
+            <strong>Property:</strong>
+            {{ property.name }}
+        </p>
+
+        <p>
+            <strong>Reference:</strong>
+            {{ property.public_id }}
+        </p>
+
+        <p>
+            Protected property information is available only
+            to an authorised user.
+        </p>
+
+        <div class="actions">
+            <a
+                href="{{ login_url }}"
+                class="button"
+            >
+                Login to View Property Details
+            </a>
+        </div>
+    </div>
+{% endblock %}

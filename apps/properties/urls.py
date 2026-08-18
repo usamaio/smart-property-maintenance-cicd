@@ -17,6 +17,13 @@ urlpatterns = [
         views.property_create,
         name='property_create'
     ),
+
+    path(
+        'qr/<uuid:public_id>/',
+        views.property_qr_preview,
+        name='property_qr_preview'
+    ),
+
     path(
         '<uuid:public_id>/',
         views.property_detail,

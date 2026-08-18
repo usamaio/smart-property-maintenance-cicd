@@ -181,7 +181,7 @@
         {% endif %}
     </div>
 
-    {% url 'properties:property_detail' property.public_id as property_qr_path %}
+    {% url 'properties:property_qr_preview' property.public_id as property_qr_path %}
     {% qr_code_data_uri request property_qr_path as property_qr_code %}
 
     <div class="card">

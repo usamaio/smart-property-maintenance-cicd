@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from .forms import PropertyForm, RoomForm
 from .models import Property, Room
@@ -27,6 +28,48 @@ def get_accessible_rooms(user):
 
     return Room.objects.filter(
         property__owner=user
+    )
+
+
+def property_qr_preview(request, public_id):
+    property_obj = get_object_or_404(
+        Property,
+        public_id=public_id,
+    )
+
+    if request.user.is_authenticated:
+        accessible_property = get_object_or_404(
+            get_accessible_properties(request.user),
+            public_id=public_id,
+        )
+
+        return redirect(
+            'properties:property_detail',
+            public_id=accessible_property.public_id,
+        )
+
+    property_detail_url = reverse(
+        'properties:property_detail',
+        kwargs={
+            'public_id': property_obj.public_id,
+        },
+    )
+
+    login_url = (
+        reverse('accounts:login')
+        + '?next='
+        + property_detail_url
+    )
+
+    context = {
+        'property': property_obj,
+        'login_url': login_url,
+    }
+
+    return render(
+        request,
+        'properties/property_qr_preview.html',
+        context,
     )
 
 

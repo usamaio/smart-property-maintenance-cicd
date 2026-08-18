@@ -1,0 +1,41 @@
+{% extends "properties/base.html" %}
+
+{% block title %}
+    Appliance QR
+{% endblock %}
+
+{% block content %}
+    <div class="card qr-container">
+        <h1>Smart Property Maintenance</h1>
+
+        <h2>Appliance QR Code</h2>
+
+        <p>
+            This QR code is linked to a registered appliance.
+        </p>
+
+        <p>
+            <strong>Appliance:</strong>
+            {{ appliance.name }}
+        </p>
+
+        <p>
+            <strong>Reference:</strong>
+            {{ appliance.public_id }}
+        </p>
+
+        <p>
+            Protected appliance, warranty and maintenance
+            information is available only to an authorised user.
+        </p>
+
+        <div class="actions">
+            <a
+                href="{{ login_url }}"
+                class="button"
+            >
+                Login to View Appliance Details
+            </a>
+        </div>
+    </div>
+{% endblock %}

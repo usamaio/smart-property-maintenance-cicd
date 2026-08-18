@@ -184,7 +184,7 @@
         <h2>Appliance QR Code</h2>
 
         {% if appliance.has_individual_qr %}
-            {% url 'appliances:appliance_detail' appliance.public_id as appliance_qr_path %}
+        {% url 'appliances:appliance_qr_preview' appliance.public_id as appliance_qr_path %}
             {% qr_code_data_uri request appliance_qr_path as appliance_qr_code %}
 
             <p>
